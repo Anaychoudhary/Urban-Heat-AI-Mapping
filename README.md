@@ -1,1 +1,0 @@
-# Urban-Heat-AI-Mapping
