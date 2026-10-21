@@ -136,7 +136,7 @@ function calculateAllocations(
   budget: number,
   vulnerabilityWeight: number,
   coolingPreference: number,
-  constrained: boolean,
+  constrainedHotspotId: HotspotBudgetInput["id"] | null,
 ): HotspotAllocation[] {
   const vulnerabilityShare = vulnerabilityWeight / 100;
   const coolingShare = coolingPreference / 100;
@@ -149,7 +149,7 @@ function calculateAllocations(
     const performance =
       coolingShare * hotspot.coolingNeed +
       (1 - coolingShare) * hotspot.costEfficiency;
-    const constraintFactor = constrained && hotspot.id === "C" ? 0.72 : 1;
+    const constraintFactor = hotspot.id === constrainedHotspotId ? 0.72 : 1;
     return {
       ...hotspot,
       weight: priority * performance * constraintFactor,
@@ -253,8 +253,19 @@ export default function Page2BudgetOptimizer() {
   const [coolingPreference, setCoolingPreference] = useState(65);
   const [isOptimized, setIsOptimized] = useState(false);
   const [isRunning, setIsRunning] = useState(false);
-  const [constraintsApplied, setConstraintsApplied] = useState(false);
+  const [constraintsApplied, setConstraintsApplied] = useState(
+    () => new URLSearchParams(window.location.search).get("fieldConstraints") === "1",
+  );
   const [saved, setSaved] = useState(false);
+  const scenarioSearch = new URLSearchParams(window.location.search);
+  const reportedHotspot = scenarioSearch.get("hotspot");
+  const reportedCategory = scenarioSearch.get("category");
+  const reportedHotspotId = hotspotInputs.find(
+    (hotspot) => hotspot.id === reportedHotspot?.match(/^Hotspot ([A-D])/i)?.[1],
+  )?.id;
+  const constrainedHotspotId = constraintsApplied
+    ? reportedHotspotId ?? "C"
+    : null;
 
   const allocations = useMemo(
     () =>
@@ -262,9 +273,9 @@ export default function Page2BudgetOptimizer() {
         budget,
         vulnerabilityWeight,
         coolingPreference,
-        constraintsApplied,
+        constrainedHotspotId,
       ),
-    [budget, vulnerabilityWeight, coolingPreference, constraintsApplied],
+    [budget, vulnerabilityWeight, coolingPreference, constrainedHotspotId],
   );
   const totalAllocated = allocations.reduce((sum, hotspot) => sum + hotspot.allocated, 0);
   const remaining = Math.max(0, budget - totalAllocated);
@@ -477,8 +488,9 @@ export default function Page2BudgetOptimizer() {
           <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-amber-700/10 bg-amber-100/40 px-4 py-3 text-[10px] text-amber-900">
             <span className="flex items-center gap-2">
               <Wind size={14} />
-              Field constraints simulated: limited public land access in Kothrud;
-              allocations have been adjusted.
+              {reportedHotspot && reportedCategory
+                ? `Field restriction recorded at ${reportedHotspot}: ${reportedCategory}. Feasible allocations have been adjusted.`
+                : "Field constraints simulated: limited public land access in Kothrud; allocations have been adjusted."}
             </span>
             <button
               type="button"
@@ -706,34 +718,52 @@ export default function Page2BudgetOptimizer() {
           </aside>
         </section>
 
-        <div className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/[0.08] bg-[#0e161f] p-3 sm:px-4">
+        <div className="mt-5 rounded-2xl border border-white/[0.08] bg-[#0e161f] p-3 sm:p-4">
           <div className="flex items-center gap-2 pl-1">
             <LockKeyhole size={13} className="text-slate-500" />
             <p className="text-[9px] text-slate-500">
               Changes are saved as a planning scenario, not a committed budget.
             </p>
           </div>
-          <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
-            <button
-              type="button"
-              onClick={saveBaseline}
-              className={`flex min-h-10 items-center justify-center gap-2 rounded-lg border px-4 text-[10px] font-semibold transition ${
-                saved
-                  ? "border-emerald-800/20 bg-emerald-900/[0.06] text-emerald-800"
-                  : "border-white/[0.1] bg-transparent text-slate-300 hover:bg-white/[0.04]"
-              }`}
-            >
-              {saved ? <Check size={14} /> : <Save size={14} />}
-              {saved ? "Baseline Saved" : "Save Baseline Scenario"}
-            </button>
-            <button
-              type="button"
-              onClick={() => setConstraintsApplied((current) => !current)}
-              className="group flex min-h-10 items-center justify-center gap-2 rounded-lg bg-emerald-400 px-4 text-[10px] font-semibold text-[#07120f] shadow-md shadow-emerald-950/10 transition hover:bg-emerald-300"
-            >
-              {constraintsApplied ? "Update Field Constraints" : "Simulate Field Constraints"}
-              <ArrowRight size={14} className="transition-transform group-hover:translate-x-0.5" />
-            </button>
+          <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+            <div className="flex w-full flex-col gap-2 sm:ml-auto sm:w-auto sm:flex-row">
+              <button
+                type="button"
+                onClick={saveBaseline}
+                className={`flex min-h-10 items-center justify-center gap-2 rounded-lg border px-4 text-[10px] font-semibold transition ${
+                  saved
+                    ? "border-emerald-800/20 bg-emerald-900/[0.06] text-emerald-800"
+                    : "border-white/[0.1] bg-transparent text-slate-300 hover:bg-white/[0.04]"
+                }`}
+              >
+                {saved ? <Check size={14} /> : <Save size={14} />}
+                {saved ? "Baseline Saved" : "Save Baseline Scenario"}
+              </button>
+              <button
+                type="button"
+                onClick={() => setConstraintsApplied((current) => !current)}
+                className="group flex min-h-10 items-center justify-center gap-2 rounded-lg bg-emerald-400 px-4 text-[10px] font-semibold text-[#07120f] shadow-md shadow-emerald-950/10 transition hover:bg-emerald-300"
+              >
+                {constraintsApplied ? "Update Field Constraints" : "Simulate Field Constraints"}
+                <ArrowRight size={14} className="transition-transform group-hover:translate-x-0.5" />
+              </button>
+            </div>
+            <div className="flex items-center gap-2 rounded-xl border border-amber-800/10 bg-amber-900/[0.035] p-3 sm:basis-full sm:justify-between sm:px-4">
+              <span className="flex items-center gap-2 text-[10px] text-slate-500">
+                <MapPin size={14} className="shrink-0 text-amber-800" />
+                <span>
+                  <span className="block font-semibold text-slate-200">Next: field verification</span>
+                  Report on-site restrictions to refine this draft plan.
+                </span>
+              </span>
+              <a
+                href="/page3"
+                className="group flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-lg border border-amber-800/15 bg-[#fbfaf6] px-3 text-[10px] font-semibold text-amber-800 transition hover:bg-amber-900/[0.06] sm:px-4"
+              >
+                Open field report
+                <ArrowRight size={13} className="transition-transform group-hover:translate-x-0.5" />
+              </a>
+            </div>
           </div>
         </div>
 

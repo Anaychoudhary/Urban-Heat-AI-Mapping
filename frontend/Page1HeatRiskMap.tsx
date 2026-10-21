@@ -217,11 +217,13 @@ function InterventionIcon({ type }: { type: Intervention["icon"] }) {
 }
 
 export default function Page1HeatRiskMap() {
-  const [selectedWard, setSelectedWard] = useState(wards[2].id);
-  const [selectedHotspotId, setSelectedHotspotId] = useState("A");
+  const defaultWardHotspot = hotspots.find((hotspot) => hotspot.locality === wards[0].name) ?? hotspots[0];
+  const [selectedWard, setSelectedWard] = useState(wards[0].id);
+  const [selectedHotspotId, setSelectedHotspotId] = useState(defaultWardHotspot.id);
   const [query, setQuery] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
-  const [mapTarget, setMapTarget] = useState<[number, number]>(puneCenter);
+  const [mapTarget, setMapTarget] = useState<[number, number]>(defaultWardHotspot.coordinates);
+  const [mapTilesUnavailable, setMapTilesUnavailable] = useState(false);
 
   const selectedWardData = wards.find((ward) => ward.id === selectedWard) ?? wards[0];
   const selectedHotspot =
@@ -548,6 +550,9 @@ export default function Page1HeatRiskMap() {
                 <TileLayer
                   attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
                   url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  eventHandlers={{
+                    tileerror: () => setMapTilesUnavailable(true),
+                  }}
                 />
                 <ZoomControl position="bottomright" />
                 <MapViewport target={mapTarget} />
@@ -599,6 +604,15 @@ export default function Page1HeatRiskMap() {
                   {query || "Pune, Maharashtra"}
                 </span>
               </div>
+
+              {mapTilesUnavailable && (
+                <div
+                  role="status"
+                  className="absolute right-4 top-4 z-[500] max-w-[190px] rounded-lg border border-amber-800/15 bg-[#fbfaf6]/95 px-3 py-2 text-[9px] font-medium leading-relaxed text-amber-800 shadow-sm"
+                >
+                  Basemap unavailable · hotspot risk overlay remains active
+                </div>
+              )}
 
               <div className="absolute bottom-4 left-4 z-[500] flex items-center gap-2 rounded-lg border border-white/[0.09] bg-[#0c131b]/90 px-3 py-2 shadow-lg backdrop-blur">
                 <span className="relative flex h-2 w-2">
