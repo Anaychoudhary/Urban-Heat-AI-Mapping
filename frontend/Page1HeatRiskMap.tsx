@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import {
-  ArrowDownRight,
   ArrowRight,
   Building2,
   ChevronDown,
@@ -322,13 +321,13 @@ export default function Page1HeatRiskMap() {
 
           <div className="flex w-full flex-wrap items-end gap-3 sm:w-auto sm:ml-auto">
             <label className="flex min-w-[150px] flex-1 flex-col gap-1 sm:flex-none">
-              <span className="text-[10px] font-medium text-slate-500">Select City</span>
+              <span className="text-base font-medium text-slate-500">Select City</span>
               <span className="relative">
                 <select
                   aria-label="Select City"
                   value={selectedCityId}
                   onChange={(event) => handleCityChange(event.target.value)}
-                  className="h-10 w-full appearance-none rounded-lg border border-white/[0.09] bg-[#111a24] py-2 pl-3.5 pr-10 text-xs font-medium text-slate-200 outline-none transition hover:border-white/20 focus:border-emerald-400/50 sm:min-w-[160px]"
+                  className="h-10 w-full appearance-none rounded-lg border border-white/[0.09] bg-[#111a24] py-2 pl-3.5 pr-10 text-base font-medium text-slate-200 outline-none transition hover:border-white/20 focus:border-emerald-400/50 sm:min-w-[160px]"
                 >
                   <option value="">Select a city</option>
                   {cities.map((city) => (
@@ -345,14 +344,14 @@ export default function Page1HeatRiskMap() {
             </label>
 
             <label className="flex min-w-[170px] flex-1 flex-col gap-1 sm:flex-none">
-              <span className="text-[10px] font-medium text-slate-500">Select Ward</span>
+              <span className="text-base font-medium text-slate-500">Select Ward</span>
               <span className="relative">
                 <select
                   aria-label="Select Ward"
                   value={selectedWardId}
                   disabled={!selectedCity || availableWards.length === 0}
                   onChange={(event) => handleWardChange(event.target.value)}
-                  className="h-10 w-full appearance-none rounded-lg border border-white/[0.09] bg-[#111a24] py-2 pl-3.5 pr-10 text-xs font-medium text-slate-200 outline-none transition hover:border-white/20 focus:border-emerald-400/50 disabled:cursor-not-allowed disabled:opacity-50 sm:min-w-[190px]"
+                  className="h-10 w-full appearance-none rounded-lg border border-white/[0.09] bg-[#111a24] py-2 pl-3.5 pr-10 text-base font-medium text-slate-200 outline-none transition hover:border-white/20 focus:border-emerald-400/50 disabled:cursor-not-allowed disabled:opacity-50 sm:min-w-[190px]"
                 >
                   <option value={ALL_WARDS}>
                     {availableWards.length ? "All Wards" : selectedCity ? "Ward data unavailable" : "Select a city"}
@@ -372,13 +371,6 @@ export default function Page1HeatRiskMap() {
           </div>
 
           <div className="ml-auto flex items-center gap-3 sm:ml-0">
-            <div className="hidden items-center gap-2 xl:flex">
-              <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-50" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
-              </span>
-              <span className="text-[11px] font-medium text-slate-400">Live monitoring · demo</span>
-            </div>
             <button
               type="button"
               aria-label="Help"
@@ -398,7 +390,7 @@ export default function Page1HeatRiskMap() {
             </h1>
           </div>
 
-          <div className="flex items-center gap-2 rounded-lg border border-white/[0.07] bg-white/[0.025] px-3 py-2 text-[11px] text-slate-400">
+          <div className="flex items-center gap-2 rounded-lg border border-white/[0.07] bg-white/[0.025] px-3 py-2 text-base text-slate-400">
             <Clock3 size={14} className="text-slate-500" />
             Data updated <span className="font-medium text-slate-300">Project sample</span>
             <span className="ml-1 h-1.5 w-1.5 rounded-full bg-amber-400" />
@@ -412,7 +404,7 @@ export default function Page1HeatRiskMap() {
           >
             <div className="flex flex-col gap-3 border-b border-white/[0.07] px-4 py-3 sm:px-5 xl:flex-row xl:items-center xl:justify-between">
               <div className="flex items-center">
-                <span className="rounded-lg bg-emerald-900/[0.08] px-3 py-2 text-[10px] font-semibold text-emerald-800">
+                <span className="rounded-lg bg-emerald-900/[0.08] px-3 py-2 text-base font-semibold text-emerald-800">
                   Heat Map
                 </span>
               </div>
@@ -433,7 +425,7 @@ export default function Page1HeatRiskMap() {
                         setMapLayer(layer);
                       }
                     }}
-                    className="h-9 min-w-28 bg-transparent text-[10px] text-slate-200 outline-none focus:border-emerald-400/50"
+                    className="h-9 min-w-28 bg-transparent text-sm text-slate-200 outline-none focus:border-emerald-400/50"
                   >
                     <option value="all">Risk zones & hotspots</option>
                     <option value="risk-zones">Risk zones only</option>
@@ -443,12 +435,12 @@ export default function Page1HeatRiskMap() {
                 </label>
                 <label className="flex items-center gap-2 rounded-lg border border-white/[0.09] bg-[#111a24] px-2.5">
                   <Clock3 size={14} className="text-slate-500" />
-                  <span className="text-[10px] text-slate-400">Date</span>
+                  <span className="text-sm text-slate-400">Date</span>
                   <select
                     aria-label="Map date"
                     disabled
                     title="Date filtering is unavailable because the connected dataset has no dated time series."
-                    className="h-9 bg-transparent text-[10px] text-slate-400 opacity-70"
+                    className="h-9 bg-transparent text-sm text-slate-400 opacity-70"
                   >
                     <option>Latest available</option>
                   </select>
@@ -528,7 +520,7 @@ export default function Page1HeatRiskMap() {
 
               <div className="absolute right-4 top-4 z-[500] flex items-center gap-2 rounded-lg border border-white/[0.09] bg-[#0c131b]/90 px-3 py-2 shadow-lg backdrop-blur">
                 <MapPin size={14} className="text-emerald-400" />
-                <span className="text-[10px] font-medium text-slate-200">
+                <span className="text-base font-medium text-slate-200">
                   {selectedWardData
                     ? `${selectedWardData.name} (Ward ${selectedWardData.id}), ${selectedCity?.name}`
                     : selectedCity
@@ -540,7 +532,7 @@ export default function Page1HeatRiskMap() {
               {mapTilesUnavailable && (
                 <div
                   role="status"
-                  className="absolute right-4 top-4 z-[500] max-w-[190px] rounded-lg border border-amber-800/15 bg-[#fbfaf6]/95 px-3 py-2 text-[9px] font-medium leading-relaxed text-amber-800 shadow-sm"
+                  className="absolute right-4 top-4 z-[500] max-w-[240px] rounded-lg border border-amber-800/15 bg-[#fbfaf6]/95 px-3 py-2 text-sm font-medium leading-relaxed text-amber-800 shadow-sm"
                 >
                   Basemap unavailable · hotspot risk overlay remains active
                 </div>
@@ -551,7 +543,7 @@ export default function Page1HeatRiskMap() {
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-40" />
                   <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
                 </span>
-                <span className="text-[10px] text-slate-400">
+                <span className="text-sm text-slate-400">
                   {selectedWardData
                     ? `No hotspot mapping for Ward ${selectedWardData.id}`
                     : visibleHotspots.length
@@ -561,7 +553,7 @@ export default function Page1HeatRiskMap() {
               </div>
 
               <div className="absolute bottom-4 right-4 z-[500] space-y-2 rounded-lg border border-white/[0.09] bg-[#0c131b]/90 px-3 py-2.5 shadow-lg backdrop-blur">
-                <p className="text-[9px] font-semibold text-slate-200">Heat risk</p>
+                <p className="text-sm font-semibold text-slate-200">Heat risk</p>
                 <MapLegend color="#fb6470" label="Critical" />
                 <MapLegend color="#f4ad54" label="Moderate" />
               </div>
@@ -629,7 +621,7 @@ export default function Page1HeatRiskMap() {
           <div className="mx-auto w-full max-w-[360px] text-center">
             <a
               href="/page2"
-              className="group flex min-h-[48px] items-center justify-between rounded-xl bg-emerald-400 px-4 text-xs font-semibold text-[#07120f] shadow-lg shadow-emerald-950/30 transition hover:bg-emerald-300"
+              className="group flex min-h-[48px] items-center justify-between rounded-xl bg-emerald-400 px-4 text-base font-semibold text-[#07120f] shadow-lg shadow-emerald-950/30 transition hover:bg-emerald-300"
             >
               <span>Optimize Ward Budget (₹25L)</span>
               <ArrowRight
@@ -637,24 +629,9 @@ export default function Page1HeatRiskMap() {
                 className="transition-transform group-hover:translate-x-1"
               />
             </a>
-            <p className="mt-2 text-[9px] text-slate-600">
-              {selectedCity?.id === "pune"
-                ? `Generate an optimized intervention plan for ${selectedWardData ? `${selectedWardData.name} (Ward ${selectedWardData.id})` : "All Wards"}`
-                : selectedCity
-                  ? "Budget optimizer currently uses illustrative Pune sample data"
-                  : "Select a city to prepare an intervention plan"}
-            </p>
           </div>
 
         </section>
-
-        <footer className="mt-4 flex flex-wrap items-center justify-between gap-2 px-1 text-[9px] text-slate-600">
-          <span>Ward names/IDs supplied by project user · ward boundaries, validated ward metrics, live feed, and dated observations are not connected</span>
-          <span className="flex items-center gap-1.5">
-            <ArrowDownRight size={11} />
-            Indicative analysis · 100m resolution
-          </span>
-        </footer>
       </div>
 
       <style>{`
@@ -676,7 +653,7 @@ export default function Page1HeatRiskMap() {
         .heat-risk-map .leaflet-control-attribution {
           background: rgba(10, 16, 23, 0.72);
           color: #64748b;
-          font-size: 9px;
+          font-size: 11px;
         }
         .heat-risk-map .leaflet-tile-pane {
           filter: invert(1) hue-rotate(180deg) brightness(0.78) saturate(0.72);
@@ -761,7 +738,7 @@ export default function Page1HeatRiskMap() {
         }
         .heat-risk-map .leaflet-popup-content {
           margin: 10px 13px;
-          font-size: 11px;
+          font-size: 14px;
           line-height: 1.6;
         }
         .heat-risk-map .leaflet-popup-close-button {
@@ -801,25 +778,25 @@ function SummaryMetric({
   return (
     <div className="h-full min-h-[112px] rounded-xl border border-white/[0.07] bg-[#0e161f] px-4 py-3.5 transition hover:border-white/[0.12]">
       <div className="flex items-center justify-between">
-        <span className="text-[10px] font-medium text-slate-500">{label}</span>
+        <span className="text-base font-medium text-slate-500">{label}</span>
         <span className={`flex h-7 w-7 items-center justify-center rounded-lg ${accentStyles[accent]}`}>
           {icon}
         </span>
       </div>
       <div className="mt-1.5 flex items-baseline gap-1.5">
-        <span className="text-[21px] font-semibold tracking-tight text-slate-100">
+        <span className="text-xl font-semibold tracking-tight text-slate-100">
           {value}
         </span>
-        <span className="text-[10px] text-slate-500">{unit}</span>
+        <span className="text-base text-slate-500">{unit}</span>
       </div>
-      <p className={`mt-1 text-[9px] ${detailStyles[accent]}`}>{change}</p>
+      <p className={`mt-1 text-sm leading-snug ${detailStyles[accent]}`}>{change}</p>
     </div>
   );
 }
 
 function MapLegend({ color, label }: { color: string; label: string }) {
   return (
-    <span className="flex items-center gap-1.5 text-[9px] text-slate-400">
+    <span className="flex items-center gap-1.5 text-sm text-slate-400">
       <span
         className="h-2 w-2 rounded-full"
         style={{

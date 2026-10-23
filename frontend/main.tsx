@@ -15,6 +15,7 @@ const Page4SavedScenariosChangeTracker = lazy(
 const Page5PredictionvsRealityCalibrationLoop = lazy(
   () => import("./page5PredictionvsRealityCalibrationLoop"),
 );
+const LoginPage = lazy(() => import("./loginpage"));
 
 const root = document.getElementById("root");
 
@@ -24,6 +25,13 @@ if (!root) {
 
 function renderCurrentPage() {
   switch (window.location.pathname) {
+    case "/login":
+    case "/page0":
+      return (
+        <Suspense fallback={<LoadingPage label="Loading role selection…" />}>
+          <LoginPage />
+        </Suspense>
+      );
     case "/page5":
       return (
         <Suspense fallback={<LoadingPage label="Loading outcome tracking…" />}>
@@ -37,12 +45,14 @@ function renderCurrentPage() {
         </Suspense>
       );
     case "/page3":
+    case "/field-reporter":
       return (
         <Suspense fallback={<LoadingPage label="Loading field portal…" />}>
           <Page3FieldRestrictionPortal />
         </Suspense>
       );
     case "/page2":
+    case "/budget-optimizer":
       return (
         <Suspense fallback={<LoadingPage label="Loading budget optimizer…" />}>
           <Page2BudgetOptimizer />
@@ -56,7 +66,7 @@ function renderCurrentPage() {
 function LoadingPage({ label }: { label: string }) {
   return (
     <main className="theme-warm flex min-h-screen items-center justify-center bg-[#0a1017] text-slate-100">
-      <p className="text-xs text-slate-500">{label}</p>
+      <p className="text-base text-slate-500">{label}</p>
     </main>
   );
 }

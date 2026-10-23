@@ -10,7 +10,6 @@ import {
   ClipboardCheck,
   CloudSun,
   Crosshair,
-  ImagePlus,
   MapPin,
   Radio,
   ShieldCheck,
@@ -157,41 +156,19 @@ export default function Page3FieldRestrictionPortal() {
               <Radio size={19} />
             </span>
             <div className="min-w-0">
-              <p className="truncate text-xs font-semibold tracking-wide text-slate-100 sm:text-sm">
-                Field Team Obstacle Reporter
-              </p>
-              <p className="mt-0.5 text-[9px] font-medium uppercase tracking-[0.15em] text-slate-500">
-                Ward: Aundh
+              <p className="truncate text-base font-semibold tracking-wide text-slate-100">
+                Field Constraints
               </p>
             </div>
           </div>
-          <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-emerald-800/15 bg-emerald-900/[0.06] px-2.5 py-1.5 text-[9px] font-semibold text-emerald-800 sm:gap-2 sm:px-3 sm:text-[10px]">
-            <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-700 opacity-40" />
-              <span className="relative h-2 w-2 rounded-full bg-emerald-700" />
-            </span>
-            <span className="hidden sm:inline">Mode: </span>
-            Field Engineer On-Site
-          </span>
         </div>
       </header>
 
       <div className="mx-auto max-w-[1120px] px-4 pb-8 pt-6 sm:px-7 sm:pt-9">
         <div className="mb-5">
-          <div className="mb-2 flex items-center gap-2 text-[9px] font-semibold uppercase tracking-[0.18em] text-slate-500">
-            <span>Climate intelligence</span>
-            <span>/</span>
-            <span>Ward planning</span>
-            <span>/</span>
-            <span className="text-emerald-800">03 Field report</span>
-          </div>
           <h1 className="text-[22px] font-semibold tracking-tight text-slate-100 sm:text-[28px]">
-            Field Restriction &amp; Constraint Portal
+            Field Restriction Report
           </h1>
-          <p className="mt-1.5 max-w-2xl text-[11px] leading-relaxed text-slate-500 sm:text-xs">
-            Record on-site obstacles with geotagged evidence so the ward plan
-            reflects what crews can safely build.
-          </p>
         </div>
 
         <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_290px] lg:gap-5">
@@ -204,18 +181,15 @@ export default function Page3FieldRestrictionPortal() {
                 <ClipboardCheck size={19} />
               </span>
               <div>
-                <h2 className="text-sm font-semibold text-slate-100">
+                <h2 className="text-base font-semibold text-slate-100">
                   On-site constraint report
                 </h2>
-                <p className="mt-1 text-[10px] leading-relaxed text-slate-500">
-                  Add a location, evidence photo, and details from the field.
-                </p>
               </div>
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
               <label className="block">
-                <span className="mb-1.5 block text-[10px] font-semibold text-slate-300">
+                <span className="mb-1.5 block text-base font-semibold text-slate-300">
                   Hotspot location
                 </span>
                 <span className="relative block">
@@ -229,7 +203,7 @@ export default function Page3FieldRestrictionPortal() {
                       setHotspot(event.target.value);
                       setSubmitted(false);
                     }}
-                    className="h-11 w-full appearance-none rounded-lg border border-white/[0.1] bg-white/[0.025] pl-9 pr-9 text-[11px] text-slate-200 outline-none transition focus:border-emerald-800/40"
+                    className="h-11 w-full appearance-none rounded-lg border border-white/[0.1] bg-white/[0.025] pl-9 pr-9 text-base text-slate-200 outline-none transition focus:border-emerald-800/40"
                   >
                     {hotspotOptions.map((option) => (
                       <option key={option}>{option}</option>
@@ -243,7 +217,7 @@ export default function Page3FieldRestrictionPortal() {
               </label>
 
               <label className="block">
-                <span className="mb-1.5 block text-[10px] font-semibold text-slate-300">
+                <span className="mb-1.5 block text-base font-semibold text-slate-300">
                   Constraint category
                 </span>
                 <span className="relative block">
@@ -257,7 +231,7 @@ export default function Page3FieldRestrictionPortal() {
                       setCategory(event.target.value);
                       setSubmitted(false);
                     }}
-                    className="h-11 w-full appearance-none rounded-lg border border-white/[0.1] bg-white/[0.025] pl-9 pr-9 text-[11px] text-slate-200 outline-none transition focus:border-emerald-800/40"
+                    className="h-11 w-full appearance-none rounded-lg border border-white/[0.1] bg-white/[0.025] pl-9 pr-9 text-base text-slate-200 outline-none transition focus:border-emerald-800/40"
                   >
                     {constraintCategories.map((option) => (
                       <option key={option}>{option}</option>
@@ -273,14 +247,14 @@ export default function Page3FieldRestrictionPortal() {
 
             <section className="mt-5">
               <div className="mb-1.5 flex items-center justify-between gap-3">
-                <h3 className="text-[10px] font-semibold text-slate-300">
+                <h3 className="text-base font-semibold text-slate-300">
                   Geotagged photo evidence
                 </h3>
                 <button
                   type="button"
                   onClick={captureLocation}
                   disabled={isLocating}
-                  className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-emerald-800/10 px-2 text-[9px] font-medium text-emerald-800 transition hover:bg-emerald-900/[0.05] disabled:opacity-60"
+                  className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-emerald-800/10 px-2 text-sm font-medium text-emerald-800 transition hover:bg-emerald-900/[0.05] disabled:opacity-60"
                 >
                   <Crosshair size={12} />
                   {isLocating
@@ -314,11 +288,11 @@ export default function Page3FieldRestrictionPortal() {
                   ) : (
                     <OverheadWiresPreview />
                   )}
-                  <span className="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-full border border-white/70 bg-[#fbfaf6]/95 px-2.5 py-1.5 text-[9px] font-medium text-[#48574c] shadow-sm">
+                  <span className="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-full border border-white/70 bg-[#fbfaf6]/95 px-2.5 py-1.5 text-sm font-medium text-[#48574c] shadow-sm">
                     <MapPin size={11} className="text-emerald-800" />
                     {coordinates ?? "Aundh, Pune · sample site"}
                   </span>
-                  <span className="absolute bottom-3 left-3 rounded-md bg-[#fbfaf6]/95 px-2 py-1 text-[9px] font-medium text-[#29352f] shadow-sm">
+                  <span className="absolute bottom-3 left-3 rounded-md bg-[#fbfaf6]/95 px-2 py-1 text-sm font-medium text-[#29352f] shadow-sm">
                     {photoName ?? "Sample photo · overhead electrical wires"}
                   </span>
                   {photoUrl && (
@@ -334,16 +308,6 @@ export default function Page3FieldRestrictionPortal() {
                 </div>
 
                 <div className="flex flex-col gap-3 p-3 sm:flex-row sm:items-center sm:justify-between sm:px-4">
-                  <div className="flex items-start gap-2">
-                    <ImagePlus
-                      size={15}
-                      className="mt-0.5 shrink-0 text-emerald-800"
-                    />
-                    <p className="text-[9px] leading-relaxed text-slate-500">
-                      Drop an image here, browse files, or take a site photo.
-                      Images are limited to 12 MB.
-                    </p>
-                  </div>
                   <div className="grid grid-cols-2 gap-2 sm:flex sm:shrink-0">
                     <input
                       ref={uploadInputRef}
@@ -365,7 +329,7 @@ export default function Page3FieldRestrictionPortal() {
                     <button
                       type="button"
                       onClick={() => uploadInputRef.current?.click()}
-                      className="inline-flex min-h-10 whitespace-nowrap items-center justify-center gap-1.5 rounded-lg border border-white/[0.1] px-3 text-[10px] font-semibold text-slate-300 transition hover:bg-white/[0.04]"
+                      className="inline-flex min-h-10 whitespace-nowrap items-center justify-center gap-1.5 rounded-lg border border-white/[0.1] px-3 text-base font-semibold text-slate-300 transition hover:bg-white/[0.04]"
                     >
                       <Upload size={13} className="shrink-0" />
                       Upload photo
@@ -373,7 +337,7 @@ export default function Page3FieldRestrictionPortal() {
                     <button
                       type="button"
                       onClick={() => cameraInputRef.current?.click()}
-                      className="inline-flex min-h-10 whitespace-nowrap items-center justify-center gap-1.5 rounded-lg border border-emerald-800/15 bg-emerald-900/[0.05] px-3 text-[10px] font-semibold text-emerald-800 transition hover:bg-emerald-900/[0.1]"
+                      className="inline-flex min-h-10 whitespace-nowrap items-center justify-center gap-1.5 rounded-lg border border-emerald-800/15 bg-emerald-900/[0.05] px-3 text-base font-semibold text-emerald-800 transition hover:bg-emerald-900/[0.1]"
                     >
                       <Camera size={13} className="shrink-0" />
                       Camera snap
@@ -381,28 +345,21 @@ export default function Page3FieldRestrictionPortal() {
                   </div>
                 </div>
                 {photoError && (
-                  <p role="alert" className="mt-2 text-[10px] font-medium text-rose-700">
+                  <p role="alert" className="mt-2 text-base font-medium text-rose-700">
                     {photoError}
                   </p>
                 )}
                 {locationError && (
-                  <p role="status" className="mt-2 text-[10px] text-amber-800">
+                  <p role="status" className="mt-2 text-base text-amber-800">
                     {locationError}
                   </p>
                 )}
-                <p className="mt-2 flex items-center gap-1.5 text-[9px] text-slate-500">
-                  <MapPin size={11} className="text-emerald-800" />
-                  {coordinates
-                    ? `Device location captured · ${coordinates}`
-                    : "Sample site shown. Capture GPS to add your device location."}
-                </p>
               </div>
             </section>
 
             <label className="mt-5 block">
-              <span className="mb-1.5 flex items-center justify-between gap-2 text-[10px] font-semibold text-slate-300">
+              <span className="mb-1.5 flex items-center justify-between gap-2 text-base font-semibold text-slate-300">
                 <span>Field notes</span>
-                <span className="font-normal text-slate-500">Add practical details</span>
               </span>
               <textarea
                 value={notes}
@@ -412,18 +369,18 @@ export default function Page3FieldRestrictionPortal() {
                 }}
                 rows={3}
                 placeholder="Describe the obstacle, its location, and any safety concerns…"
-                className="w-full resize-y rounded-lg border border-white/[0.1] bg-white/[0.025] px-3 py-2.5 text-[11px] leading-relaxed text-slate-200 outline-none transition placeholder:text-slate-500 focus:border-emerald-800/40"
+                className="w-full resize-y rounded-lg border border-white/[0.1] bg-white/[0.025] px-3 py-2.5 text-base leading-relaxed text-slate-200 outline-none transition placeholder:text-slate-500 focus:border-emerald-800/40"
               />
             </label>
 
             <button
               type="submit"
-              className="group mt-4 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-emerald-400 px-4 text-center text-[11px] font-semibold text-[#07120f] shadow-md shadow-emerald-950/10 transition hover:bg-emerald-300"
+              className="group mt-4 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-emerald-400 px-4 text-center text-base font-semibold text-[#07120f] shadow-md shadow-emerald-950/10 transition hover:bg-emerald-300"
             >
               {submitted ? <Check size={15} /> : <ShieldCheck size={15} />}
               {submitted
                 ? "Restriction submitted"
-                : "Submit Field Restriction & Trigger Re-Optimization"}
+                : "Submit field restriction"}
               {!submitted && (
                 <ArrowRight
                   size={15}
@@ -431,10 +388,6 @@ export default function Page3FieldRestrictionPortal() {
                 />
               )}
             </button>
-            <p className="mt-2 text-center text-[9px] text-slate-500">
-              Submitting updates this planning scenario only; it does not
-              approve field work.
-            </p>
           </form>
 
           <aside className="space-y-4">
@@ -448,35 +401,30 @@ export default function Page3FieldRestrictionPortal() {
                     <AlertTriangle size={16} />
                   </span>
                   <div>
-                    <p className="text-xs font-semibold text-[#29352f]">
-                      Constraint Recorded!
+                    <p className="text-base font-semibold text-[#29352f]">
+                      Constraint recorded
                     </p>
-                    <p className="mt-1 text-[10px] leading-relaxed text-[#718078]">
+                    <p className="mt-1 text-base leading-relaxed text-[#718078]">
                       {restrictionOutcomes[category]} at {hotspot.split(" - ")[0]}.
                     </p>
                   </div>
                 </div>
                 <div className="mt-4 rounded-xl border border-emerald-800/10 bg-[#eef1e9] p-3">
-                  <p className="text-[9px] font-semibold uppercase tracking-[0.13em] text-[#657b58]">
-                    Recalculation log · just now
+                  <p className="text-base font-semibold uppercase tracking-[0.13em] text-[#657b58]">
+                    Plan update
                   </p>
                   <div className="mt-3 flex gap-2.5">
                     <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#dce5d5] text-[#657b58]">
                       <Check size={11} />
                     </span>
-                    <p className="text-[10px] leading-relaxed text-[#48574c]">
-                      Engine updated feasible species. Reallocating unspent{" "}
-                      <strong>₹2.5L</strong> to Hotspot B cool roofs.
+                    <p className="text-base leading-relaxed text-[#48574c]">
+                      Feasible planting updated. ₹2.5L reallocated to Hotspot B cool roofs.
                     </p>
-                  </div>
-                  <div className="mt-3 flex items-center gap-2 border-t border-[#d8e0d0] pt-3 text-[9px] text-[#718078]">
-                    <span className="h-1.5 w-1.5 rounded-full bg-[#819572]" />
-                    Scenario recalculated with field constraints
                   </div>
                 </div>
                 <a
                   href={`/page4?fieldConstraints=1&hotspot=${encodeURIComponent(hotspot)}&category=${encodeURIComponent(category)}`}
-                  className="group mt-4 flex min-h-11 items-center justify-between gap-2 rounded-lg bg-[#819572] px-3 text-[10px] font-semibold text-white transition hover:bg-[#657b58]"
+                  className="group mt-4 flex min-h-11 items-center justify-between gap-2 rounded-lg bg-[#819572] px-3 text-base font-semibold text-white transition hover:bg-[#657b58]"
                 >
                   <span>View Plan Changes in Scenario Comparison</span>
                   <ArrowRight
@@ -492,16 +440,12 @@ export default function Page3FieldRestrictionPortal() {
                     <CloudSun size={16} />
                   </span>
                   <div>
-                    <h2 className="text-xs font-semibold text-slate-100">
+                    <h2 className="text-base font-semibold text-slate-100">
                       Field safety first
                     </h2>
-                    <p className="mt-1 text-[9px] leading-relaxed text-slate-500">
-                      Record site conditions before crews begin planting or
-                      installation.
-                    </p>
                   </div>
                 </div>
-                <ul className="mt-4 space-y-3 text-[10px] leading-relaxed text-slate-500">
+                <ul className="mt-4 space-y-3 text-base leading-relaxed text-slate-500">
                   <li className="flex gap-2">
                     <Check size={13} className="mt-0.5 shrink-0 text-emerald-800" />
                     Keep a safe distance from energized lines.
@@ -518,18 +462,10 @@ export default function Page3FieldRestrictionPortal() {
               </section>
             )}
 
-            <div className="flex items-start gap-2 rounded-xl border border-white/[0.07] bg-white/[0.02] p-3 text-[9px] leading-relaxed text-slate-500">
-              <MapPin size={13} className="mt-0.5 shrink-0 text-emerald-800" />
-              <p>
-                <span className="font-semibold text-slate-300">Location status</span>
-                <br />
-                Aundh ward · capture GPS above for device coordinates
-              </p>
-            </div>
           </aside>
         </div>
 
-        <footer className="mt-5 flex flex-wrap items-center justify-between gap-2 px-1 text-[9px] text-slate-500">
+        <footer className="mt-5 flex flex-wrap items-center justify-between gap-2 px-1 text-base text-slate-500">
           <a
             href="/page2"
             className="inline-flex min-h-9 items-center gap-1.5 transition hover:text-emerald-800"
@@ -537,7 +473,6 @@ export default function Page3FieldRestrictionPortal() {
             <ArrowLeft size={12} />
             Back to budget optimizer
           </a>
-          <span>PMC Climate Cell · Field planning workspace</span>
         </footer>
       </div>
     </main>

@@ -6,14 +6,11 @@ import {
   BadgeIndianRupee,
   Check,
   ChevronDown,
-  CircleHelp,
   CloudSun,
   Flame,
-  LockKeyhole,
   MapPin,
   RotateCcw,
   Save,
-  ShieldCheck,
   Sparkles,
   Trees,
   Wallet,
@@ -218,12 +215,12 @@ function StrategySlider({
     <div className="space-y-2">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <label htmlFor={id} className="text-[11px] font-semibold text-slate-200">
+          <label htmlFor={id} className="text-base font-semibold text-slate-200">
             {label}
           </label>
-          <p className="mt-0.5 text-[9px] text-slate-500">{description}</p>
+          <p className="mt-0.5 text-base text-slate-500">{description}</p>
         </div>
-        <span className="rounded-md border border-emerald-800/10 bg-emerald-900/[0.06] px-2 py-1 text-[10px] font-semibold tabular-nums text-emerald-800">
+        <span className="rounded-md border border-emerald-800/10 bg-emerald-900/[0.06] px-2 py-1 text-base font-semibold tabular-nums text-emerald-800">
           {value}%
         </span>
       </div>
@@ -237,7 +234,7 @@ function StrategySlider({
         className="optimizer-slider w-full cursor-pointer"
         style={{ "--range-progress": `${value}%` } as CSSProperties}
       />
-      <div className="flex justify-between text-[9px] text-slate-500">
+      <div className="flex justify-between text-base text-slate-500">
         <span>{lowLabel}</span>
         <span>{highLabel}</span>
       </div>
@@ -339,18 +336,15 @@ export default function Page2BudgetOptimizer() {
               <Wallet size={18} />
             </span>
             <div className="min-w-0">
-              <p className="truncate text-xs font-semibold tracking-wide text-slate-100 sm:text-sm">
+              <p className="truncate text-base font-semibold tracking-wide text-slate-100">
                 PMC Climate Action
-              </p>
-              <p className="mt-0.5 text-[9px] font-medium uppercase tracking-[0.16em] text-slate-500">
-                Municipal planning suite
               </p>
             </div>
           </div>
           <div className="flex items-center gap-2 rounded-lg border border-white/[0.07] bg-white/[0.025] px-3 py-2">
             <MapPin size={13} className="text-emerald-800" />
-            <span className="text-[10px] font-medium text-slate-500">Active ward</span>
-            <span className="text-[11px] font-semibold text-slate-200">Aundh</span>
+            <span className="text-sm font-medium text-slate-500">Active ward</span>
+            <span className="text-base font-semibold text-slate-200">Aundh</span>
             <ChevronDown size={13} className="text-slate-500" />
           </div>
         </div>
@@ -359,28 +353,12 @@ export default function Page2BudgetOptimizer() {
       <div className="mx-auto max-w-[1440px] px-5 pb-10 pt-7 sm:px-8">
         <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
           <div>
-            <div className="mb-2 flex items-center gap-2 text-[9px] font-semibold uppercase tracking-[0.19em] text-slate-500">
-              <span>Climate intelligence</span>
-              <span className="text-slate-300">/</span>
-              <span>Ward planning</span>
-              <span className="text-slate-300">/</span>
-              <span className="text-emerald-800">Budget optimizer</span>
-            </div>
             <h1 className="text-[24px] font-semibold tracking-tight text-white sm:text-[30px]">
               <span>Municipal Budget Optimizer</span>
               <span className="mt-1 block text-[15px] font-medium tracking-normal text-slate-500 sm:mt-0 sm:ml-2 sm:inline">
                 Ward: Aundh
               </span>
             </h1>
-            <p className="mt-2 max-w-2xl text-[11px] leading-relaxed text-slate-500">
-              Balance heat reduction with community vulnerability to build an
-              evidence-led ward intervention plan.
-            </p>
-          </div>
-          <div className="flex items-center gap-2 rounded-lg border border-white/[0.07] bg-white/[0.025] px-3 py-2 text-[10px] text-slate-500">
-            <ShieldCheck size={14} className="text-emerald-800" />
-            Scenario workspace
-            <span className="ml-1 h-1.5 w-1.5 rounded-full bg-emerald-700" />
           </div>
         </div>
 
@@ -391,16 +369,13 @@ export default function Page2BudgetOptimizer() {
                 <Sparkles size={16} />
               </span>
               <div>
-                <h2 className="text-xs font-semibold text-slate-200">
+                <h2 className="text-base font-semibold text-slate-200">
                   Optimization controls
                 </h2>
-                <p className="mt-0.5 text-[9px] text-slate-500">
-                  Tune the model priorities for this ward
-                </p>
               </div>
             </div>
             {isOptimized && (
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-800/10 bg-emerald-900/[0.06] px-2.5 py-1 text-[9px] font-medium text-emerald-800">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-800/10 bg-emerald-900/[0.06] px-2.5 py-1 text-sm font-medium text-emerald-800">
                 <Check size={12} />
                 Plan optimized
               </span>
@@ -411,7 +386,7 @@ export default function Page2BudgetOptimizer() {
             <div>
               <label
                 htmlFor="budget-input"
-                className="mb-2 block text-[10px] font-semibold text-slate-300"
+                className="mb-2 block text-base font-semibold text-slate-300"
               >
                 Ward intervention budget
               </label>
@@ -425,14 +400,14 @@ export default function Page2BudgetOptimizer() {
                   onChange={(event) => changeBudget(event.target.value)}
                   className="min-w-0 flex-1 bg-transparent text-sm font-semibold tabular-nums text-slate-100 outline-none"
                 />
-                <span className="ml-2 text-[9px] text-slate-500">
+                <span className="ml-2 text-sm text-slate-500">
                   {isLakhs ? "LAKHS" : "INR"}
                 </span>
               </div>
               <button
                 type="button"
                 onClick={toggleFormat}
-                className="mt-1.5 flex items-center gap-1 text-[9px] font-medium text-emerald-800 transition hover:text-emerald-700"
+                className="mt-1.5 flex items-center gap-1 text-sm font-medium text-emerald-800 transition hover:text-emerald-700"
               >
                 <RotateCcw size={10} />
                 Show in ₹ {isLakhs ? "rupees" : "lakhs"}
@@ -471,7 +446,7 @@ export default function Page2BudgetOptimizer() {
               type="button"
               onClick={runOptimization}
               disabled={isRunning || budget <= 0}
-              className="group flex h-11 items-center justify-center gap-2 whitespace-nowrap rounded-lg bg-emerald-400 px-4 text-[11px] font-semibold text-[#07120f] shadow-md shadow-emerald-950/10 transition hover:bg-emerald-300 disabled:cursor-not-allowed disabled:opacity-50"
+              className="group flex h-11 items-center justify-center gap-2 whitespace-nowrap rounded-lg bg-emerald-400 px-4 text-base font-semibold text-[#07120f] shadow-md shadow-emerald-950/10 transition hover:bg-emerald-300 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <span
                 className={`h-1.5 w-1.5 rounded-full bg-current ${
@@ -485,7 +460,7 @@ export default function Page2BudgetOptimizer() {
         </section>
 
         {constraintsApplied && (
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-amber-700/10 bg-amber-100/40 px-4 py-3 text-[10px] text-amber-900">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-amber-700/10 bg-amber-100/40 px-4 py-3 text-base text-amber-900">
             <span className="flex items-center gap-2">
               <Wind size={14} />
               {reportedHotspot && reportedCategory
@@ -506,14 +481,11 @@ export default function Page2BudgetOptimizer() {
           <div className="rounded-2xl border border-white/[0.08] bg-[#0e161f] p-4 sm:p-5">
             <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
               <div>
-                <h2 className="text-sm font-semibold text-slate-100">
+                <h2 className="text-base font-semibold text-slate-100">
                   Recommended allocation
                 </h2>
-                <p className="mt-1 text-[10px] text-slate-500">
-                  Four hotspot interventions · estimates update with your budget
-                </p>
               </div>
-              <span className="rounded-md border border-white/[0.08] bg-white/[0.025] px-2.5 py-1.5 text-[9px] font-medium text-slate-500">
+              <span className="rounded-md border border-white/[0.08] bg-white/[0.025] px-2.5 py-1.5 text-sm font-medium text-slate-500">
                 {isOptimized ? "OPTIMIZED SCENARIO" : "DRAFT SCENARIO"}
               </span>
             </div>
@@ -530,16 +502,16 @@ export default function Page2BudgetOptimizer() {
                         <InterventionIcon type={hotspot.icon} />
                       </span>
                       <div>
-                        <h3 className="text-[11px] font-semibold text-slate-200">
+                        <h3 className="text-base font-semibold text-slate-200">
                           Hotspot {hotspot.id}
                         </h3>
-                        <p className="mt-0.5 text-[9px] text-slate-500">
+                        <p className="mt-0.5 text-sm text-slate-500">
                           {hotspot.locality}
                         </p>
                       </div>
                     </div>
                     <span
-                      className={`rounded-md border px-1.5 py-1 text-[8px] font-semibold uppercase tracking-wide ${
+                      className={`rounded-md border px-1.5 py-1 text-sm font-semibold uppercase tracking-wide ${
                         hotspot.vulnerability >= 0.75
                           ? "border-rose-700/10 bg-rose-100/60 text-rose-800"
                           : "border-amber-700/10 bg-amber-100/60 text-amber-900"
@@ -552,14 +524,15 @@ export default function Page2BudgetOptimizer() {
                   <div className="mt-4 border-t border-white/[0.07] pt-3">
                     <div className="flex items-end justify-between gap-3">
                       <div>
-                        <p className="text-[9px] text-slate-500">Allocated amount</p>
-                        <p className="mt-1 text-[19px] font-semibold tracking-tight text-slate-100">
+                        <p className="text-base text-slate-500">Allocated amount</p>
+                        <p className="mt-1 text-xl font-semibold tracking-tight text-slate-100">
                           {formatCurrency(hotspot.allocated)}
                         </p>
                       </div>
-                      <p className="text-right text-[9px] text-slate-500">
-                        {hotspot.populationAtRisk.toLocaleString("en-IN")}
-                        <br />
+                      <p className="text-right text-base font-semibold leading-snug text-slate-500">
+                        <span className="block text-lg text-slate-200">
+                          {hotspot.populationAtRisk.toLocaleString("en-IN")}
+                        </span>
                         residents at risk
                       </p>
                     </div>
@@ -568,15 +541,15 @@ export default function Page2BudgetOptimizer() {
                       <div className="flex min-w-0 items-start gap-2">
                         <InterventionIcon type={hotspot.icon} />
                         <div className="min-w-0">
-                          <p className="text-[9px] font-medium text-slate-300">
+                          <p className="text-base font-medium text-slate-300">
                             {hotspot.interventionLabel}
                           </p>
-                          <p className="mt-0.5 text-[8px] text-slate-500">
+                          <p className="mt-0.5 text-sm text-slate-500">
                             {hotspot.intervention}
                           </p>
                         </div>
                       </div>
-                      <span className="shrink-0 whitespace-nowrap text-[10px] font-semibold text-emerald-800">
+                      <span className="shrink-0 whitespace-nowrap text-lg font-semibold text-emerald-800">
                         −{hotspot.projectedCooling.toFixed(1)}°C
                       </span>
                     </div>
@@ -590,12 +563,9 @@ export default function Page2BudgetOptimizer() {
             <section className="rounded-2xl border border-white/[0.08] bg-[#0e161f] p-4 sm:p-5">
               <div className="flex items-start justify-between">
                 <div>
-                  <h2 className="text-sm font-semibold text-slate-100">
+                  <h2 className="text-base font-semibold text-slate-100">
                     Budget utilization
                   </h2>
-                  <p className="mt-1 text-[10px] text-slate-500">
-                    Aundh Ward · current scenario
-                  </p>
                 </div>
                 <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-100/60 text-amber-900">
                   <Wallet size={15} />
@@ -640,14 +610,14 @@ export default function Page2BudgetOptimizer() {
                   <span className="text-[24px] font-semibold tracking-tight text-slate-100">
                     {allocationPercent.toFixed(0)}%
                   </span>
-                  <span className="mt-0.5 text-[9px] uppercase tracking-[0.12em] text-slate-500">
+                  <span className="mt-0.5 text-sm uppercase tracking-[0.12em] text-slate-500">
                     allocated
                   </span>
                 </div>
               </div>
 
               <div className="space-y-2.5 border-t border-white/[0.07] pt-3">
-                <div className="flex items-center justify-between gap-3 text-[10px]">
+                <div className="flex items-center justify-between gap-3 text-base">
                   <span className="flex items-center gap-2 text-slate-500">
                     <span className="h-2 w-2 rounded-full bg-emerald-700" />
                     <span>Allocated</span>
@@ -656,8 +626,8 @@ export default function Page2BudgetOptimizer() {
                     {formatCurrency(totalAllocated)}
                   </span>
                 </div>
-                <div className="flex items-center justify-between gap-3 text-[10px]">
-                  <span className="flex items-center gap-2 text-slate-500">
+                <div className="flex items-center justify-between gap-3 text-base">
+                  <span className="flex items-center gap-2 text-base text-slate-500">
                     <span className="h-2 w-2 rounded-full bg-[#d7d5ca]" />
                     <span>Remaining unallocated</span>
                   </span>
@@ -665,7 +635,7 @@ export default function Page2BudgetOptimizer() {
                     {formatCurrency(remaining)}
                   </span>
                 </div>
-                <div className="flex items-center justify-between gap-3 border-t border-white/[0.06] pt-2 text-[10px]">
+                <div className="flex items-center justify-between gap-3 border-t border-white/[0.06] pt-2 text-base">
                   <span className="text-slate-500">Total budget</span>
                   <span className="font-semibold tabular-nums text-slate-200">
                     {formatCurrency(budget)}
@@ -674,8 +644,8 @@ export default function Page2BudgetOptimizer() {
               </div>
               <div className="mt-3 flex items-center gap-2 rounded-lg bg-emerald-900/[0.045] px-3 py-2">
                 <Flame size={13} className="text-rose-700" />
-                <span className="text-[9px] text-slate-500">Projected cumulative cooling</span>
-                <span className="ml-auto text-[11px] font-semibold text-emerald-800">
+                <span className="text-base text-slate-500">Projected cumulative cooling</span>
+                <span className="ml-auto text-lg font-semibold text-emerald-800">
                   −{totalCooling.toFixed(1)}°C
                 </span>
               </div>
@@ -687,31 +657,23 @@ export default function Page2BudgetOptimizer() {
                   <Sparkles size={15} />
                 </span>
                 <div>
-                  <h2 className="text-xs font-semibold text-slate-100">
+                  <h2 className="text-base font-semibold text-slate-100">
                     Why this plan was selected
                   </h2>
-                  <p className="mt-1 text-[9px] text-slate-500">
-                    Transparent allocation logic
-                  </p>
                 </div>
               </div>
               <ul className="mt-4 space-y-3">
                 <ExplanationItem>
-                  <strong>Hotspot A leads:</strong> Vₕ=0.85 and 12,480 residents
-                  at risk give it the largest vulnerability-weighted share.
+                  🔴 <strong>Hotspot A (High Priority):</strong> Severe vulnerability (<strong className="text-lg">Vh=0.85</strong>) and <strong className="text-lg">12k+</strong> at-risk residents.
                 </ExplanationItem>
                 <ExplanationItem>
-                  <strong>Hotspot B gets cool roofs:</strong> its 0.91 roof-area
-                  ratio makes coating more efficient than street-level planting.
+                  🔵 <strong>Hotspot B (Cool Roofs):</strong> <strong className="text-lg">91%</strong> roof-area ratio makes surface coating the most cost-efficient choice.
                 </ExplanationItem>
                 <ExplanationItem>
-                  <strong>Impact is balanced:</strong> {coolingPreference}% cooling
-                  priority is combined with a {100 - coolingPreference}% cost-efficiency
-                  preference.
+                  ⚖️ <strong>Optimization Balance:</strong> Weighted <strong className="text-lg">{coolingPreference}%</strong> for maximum cooling and <strong className="text-lg">{100 - coolingPreference}%</strong> for cost efficiency.
                 </ExplanationItem>
                 <ExplanationItem>
-                  <strong>Reserve protected:</strong> 4% remains unallocated for
-                  procurement variance and field delivery.
+                  💰 <strong>Budget Reserve:</strong> <strong className="text-lg">4%</strong> retained for procurement variance.
                 </ExplanationItem>
               </ul>
             </section>
@@ -719,18 +681,12 @@ export default function Page2BudgetOptimizer() {
         </section>
 
         <div className="mt-5 rounded-2xl border border-white/[0.08] bg-[#0e161f] p-3 sm:p-4">
-          <div className="flex items-center gap-2 pl-1">
-            <LockKeyhole size={13} className="text-slate-500" />
-            <p className="text-[9px] text-slate-500">
-              Changes are saved as a planning scenario, not a committed budget.
-            </p>
-          </div>
-          <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+          <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
             <div className="flex w-full flex-col gap-2 sm:ml-auto sm:w-auto sm:flex-row">
               <button
                 type="button"
                 onClick={saveBaseline}
-                className={`flex min-h-10 items-center justify-center gap-2 rounded-lg border px-4 text-[10px] font-semibold transition ${
+                className={`flex min-h-10 items-center justify-center gap-2 rounded-lg border px-4 text-base font-semibold transition ${
                   saved
                     ? "border-emerald-800/20 bg-emerald-900/[0.06] text-emerald-800"
                     : "border-white/[0.1] bg-transparent text-slate-300 hover:bg-white/[0.04]"
@@ -742,23 +698,20 @@ export default function Page2BudgetOptimizer() {
               <button
                 type="button"
                 onClick={() => setConstraintsApplied((current) => !current)}
-                className="group flex min-h-10 items-center justify-center gap-2 rounded-lg bg-emerald-400 px-4 text-[10px] font-semibold text-[#07120f] shadow-md shadow-emerald-950/10 transition hover:bg-emerald-300"
+                className="group flex min-h-10 items-center justify-center gap-2 rounded-lg bg-emerald-400 px-4 text-base font-semibold text-[#07120f] shadow-md shadow-emerald-950/10 transition hover:bg-emerald-300"
               >
                 {constraintsApplied ? "Update Field Constraints" : "Simulate Field Constraints"}
                 <ArrowRight size={14} className="transition-transform group-hover:translate-x-0.5" />
               </button>
             </div>
             <div className="flex items-center gap-2 rounded-xl border border-amber-800/10 bg-amber-900/[0.035] p-3 sm:basis-full sm:justify-between sm:px-4">
-              <span className="flex items-center gap-2 text-[10px] text-slate-500">
+              <span className="flex items-center gap-2 text-base text-slate-500">
                 <MapPin size={14} className="shrink-0 text-amber-800" />
-                <span>
-                  <span className="block font-semibold text-slate-200">Next: field verification</span>
-                  Report on-site restrictions to refine this draft plan.
-                </span>
+                <span className="font-semibold text-slate-200">Next: field verification</span>
               </span>
               <a
                 href="/page3"
-                className="group flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-lg border border-amber-800/15 bg-[#fbfaf6] px-3 text-[10px] font-semibold text-amber-800 transition hover:bg-amber-900/[0.06] sm:px-4"
+                className="group flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-lg border border-amber-800/15 bg-[#fbfaf6] px-3 text-base font-semibold text-amber-800 transition hover:bg-amber-900/[0.06] sm:px-4"
               >
                 Open field report
                 <ArrowRight size={13} className="transition-transform group-hover:translate-x-0.5" />
@@ -767,16 +720,6 @@ export default function Page2BudgetOptimizer() {
           </div>
         </div>
 
-        <footer className="mt-4 flex flex-wrap items-center justify-between gap-2 px-1 text-[9px] text-slate-500">
-          <a href="/" className="flex items-center gap-1.5 transition hover:text-emerald-800">
-            <ArrowLeft size={11} />
-            Back to heat risk map
-          </a>
-          <span className="flex items-center gap-1.5">
-            <CircleHelp size={11} />
-            Indicative estimates · Confirm costs with ward engineering team
-          </span>
-        </footer>
       </div>
     </main>
   );
@@ -784,11 +727,8 @@ export default function Page2BudgetOptimizer() {
 
 function ExplanationItem({ children }: { children: ReactNode }) {
   return (
-    <li className="flex gap-2 text-[9px] leading-relaxed text-slate-500">
-      <span className="mt-[5px] h-1 w-1 shrink-0 rounded-full bg-emerald-700" />
-      <span>
-        {children}
-      </span>
+    <li className="flex gap-2 text-base leading-relaxed text-[#29352f]">
+      <span className="min-w-0">{children}</span>
     </li>
   );
 }

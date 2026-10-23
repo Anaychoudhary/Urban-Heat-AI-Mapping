@@ -5,7 +5,6 @@ import {
   ArrowLeft,
   ArrowRight,
   Check,
-  Clock3,
   Crosshair,
   Info,
   RefreshCw,
@@ -51,39 +50,24 @@ export default function Page5PredictionvsRealityCalibrationLoop() {
             <Activity size={19} />
           </span>
           <div className="min-w-0">
-            <p className="truncate text-xs font-semibold text-slate-100 sm:text-sm">
+            <p className="truncate text-base font-semibold text-slate-100">
               PMC Climate Action
             </p>
-            <p className="mt-0.5 text-[9px] font-medium uppercase tracking-[0.15em] text-slate-500">
-              Outcome tracking
-            </p>
           </div>
-          <span className="ml-auto inline-flex shrink-0 items-center gap-1.5 rounded-full border border-emerald-800/10 bg-emerald-900/[0.045] px-2.5 py-1.5 text-[9px] font-medium text-emerald-800 sm:px-3 sm:text-[10px]">
-            <Clock3 size={12} />
-            6-month loop
-          </span>
         </div>
       </header>
 
       <div className="mx-auto max-w-[1280px] px-4 pb-8 pt-6 sm:px-7 sm:pt-9">
         <div className="mb-5">
-          <p className="mb-2 text-[9px] font-semibold uppercase tracking-[0.18em] text-slate-500">
-            Climate intelligence <span className="mx-1.5">/</span> Model performance{" "}
-            <span className="mx-1.5">/</span>{" "}
-            <span className="text-emerald-800">Outcome tracking</span>
-          </p>
           <h1 className="max-w-4xl text-[22px] font-semibold leading-tight tracking-tight text-slate-100 sm:text-[28px]">
-            Model Calibration &amp; Post-Intervention Evaluation
+            Model outcomes &amp; calibration
           </h1>
-          <p className="mt-1.5 text-[11px] text-slate-500 sm:text-xs">
-            Six-month loop
-          </p>
         </div>
 
-        <div className="mb-4 flex items-start gap-2.5 rounded-xl border border-sky-800/10 bg-sky-50 px-3 py-3 text-[10px] leading-relaxed text-sky-900 sm:px-4">
+        <div className="mb-4 flex items-start gap-2.5 rounded-xl border border-sky-800/10 bg-sky-50 px-3 py-3 text-base leading-relaxed text-sky-900 sm:px-4">
           <Info size={15} className="mt-0.5 shrink-0" />
           <p className="font-medium">
-            Synthetic Demonstration Records · 6-Month Post-Implementation Tracking
+            Illustrative data · 6-month outcome tracking
           </p>
         </div>
 
@@ -103,10 +87,10 @@ export default function Page5PredictionvsRealityCalibrationLoop() {
         <section className="mt-4 grid items-start gap-4 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
           <article className="min-w-0 rounded-2xl border border-white/[0.08] bg-[#0e161f] p-4 sm:p-5">
             <div className="mb-4">
-              <h2 className="text-xs font-semibold text-slate-100 sm:text-sm">
-                Predicted vs. Observed Surface Temp Over Time
+              <h2 className="text-base font-semibold text-slate-100">
+                Predicted vs. observed temperature
               </h2>
-              <p className="mt-1 text-[9px] text-slate-500">Surface temperature · °C</p>
+              <p className="mt-1 text-sm text-slate-500">Surface temperature · °C</p>
             </div>
             <div className="h-[270px] w-full sm:h-[320px]">
               <ResponsiveContainer width="100%" height="100%">
@@ -114,7 +98,7 @@ export default function Page5PredictionvsRealityCalibrationLoop() {
                   <CartesianGrid stroke="#deded3" strokeDasharray="3 5" vertical={false} />
                   <XAxis
                     dataKey="month"
-                    tick={{ fill: "#718078", fontSize: 9 }}
+                    tick={{ fill: "#718078", fontSize: 12 }}
                     tickLine={false}
                     axisLine={{ stroke: "#deded3" }}
                     interval={0}
@@ -122,13 +106,13 @@ export default function Page5PredictionvsRealityCalibrationLoop() {
                   />
                   <YAxis
                     domain={[38, 45]}
-                    tick={{ fill: "#718078", fontSize: 9 }}
+                    tick={{ fill: "#718078", fontSize: 12 }}
                     tickLine={false}
                     axisLine={false}
                     tickFormatter={(value: number) => `${value}°`}
                   />
                   <Tooltip
-                    contentStyle={{ border: "1px solid #deded3", borderRadius: 12, backgroundColor: "#fbfaf6", color: "#29352f", fontSize: 11 }}
+                    contentStyle={{ border: "1px solid #deded3", borderRadius: 12, backgroundColor: "#fbfaf6", color: "#29352f", fontSize: 14 }}
                     formatter={(value, name) => [
                       `${Number(value).toFixed(1)}°C`,
                       name === "predicted" ? "Predicted LST" : "Observed LST",
@@ -141,7 +125,7 @@ export default function Page5PredictionvsRealityCalibrationLoop() {
                     iconType="circle"
                     iconSize={7}
                     formatter={(value: string) => value === "predicted" ? "Predicted LST" : "Observed LST"}
-                    wrapperStyle={{ color: "#718078", fontSize: 10 }}
+                    wrapperStyle={{ color: "#718078", fontSize: 12 }}
                   />
                   <Line
                     type="monotone"
@@ -173,13 +157,12 @@ export default function Page5PredictionvsRealityCalibrationLoop() {
 
           <article className="min-w-0 overflow-hidden rounded-2xl border border-white/[0.08] bg-[#0e161f]">
             <div className="border-b border-white/[0.07] px-4 py-4 sm:px-5">
-              <h2 className="text-xs font-semibold text-slate-100 sm:text-sm">Site Calibration Log</h2>
-              <p className="mt-1 text-[9px] text-slate-500">Recent measured and predicted outcomes</p>
+              <h2 className="text-base font-semibold text-slate-100">Site calibration log</h2>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full min-w-[760px] border-collapse text-left">
                 <thead>
-                  <tr className="bg-white/[0.025] text-[8px] font-semibold uppercase tracking-[0.08em] text-slate-500">
+                  <tr className="bg-white/[0.025] text-sm font-semibold uppercase tracking-[0.08em] text-slate-500">
                     <th className="px-3 py-3">Site name</th>
                     <th className="px-3 py-3">Intervention</th>
                     <th className="px-3 py-3">Predicted</th>
@@ -190,21 +173,21 @@ export default function Page5PredictionvsRealityCalibrationLoop() {
                 </thead>
                 <tbody>
                   <tr className="align-top">
-                    <td className="px-3 py-4 text-[10px] font-semibold text-slate-200">Hotspot B</td>
-                    <td className="px-3 py-4 text-[10px] text-slate-400">Cool roof</td>
-                    <td className="px-3 py-4 text-[10px] tabular-nums text-slate-400">38.2°C</td>
-                    <td className="px-3 py-4 text-[10px] tabular-nums text-slate-200">38.6°C</td>
+                    <td className="px-3 py-4 text-base font-semibold text-slate-200">Hotspot B</td>
+                    <td className="px-3 py-4 text-base text-slate-400">Cool roof</td>
+                    <td className="px-3 py-4 text-base tabular-nums text-slate-400">38.2°C</td>
+                    <td className="px-3 py-4 text-base tabular-nums text-slate-200">38.6°C</td>
                     <td className="px-3 py-4">
-                      <span className="inline-flex whitespace-nowrap rounded-full bg-amber-100 px-2 py-1 text-[9px] font-semibold tabular-nums text-amber-800">+0.4°C</span>
+                      <span className="inline-flex whitespace-nowrap rounded-full bg-amber-100 px-2 py-1 text-sm font-semibold tabular-nums text-amber-800">+0.4°C</span>
                     </td>
-                    <td className="px-3 py-4 text-[9px] leading-relaxed text-slate-400">
-                      Adj. benefit factor B<sub>h,j</sub> −5%
+                    <td className="px-3 py-4 text-sm leading-relaxed text-slate-400">
+                      Benefit factor −5%
                     </td>
                   </tr>
                 </tbody>
               </table>
             </div>
-            <p className="border-t border-white/[0.06] px-4 py-3 text-[10px] text-slate-500 sm:px-5">
+            <p className="border-t border-white/[0.06] px-4 py-3 text-sm text-slate-500 sm:px-5">
               Swipe horizontally to review all calibration columns.
             </p>
           </article>
@@ -216,16 +199,13 @@ export default function Page5PredictionvsRealityCalibrationLoop() {
               <RefreshCw size={16} />
             </span>
             <div>
-              <h2 className="text-xs font-semibold text-[#29352f]">Recalibrate Future Optimizer Model</h2>
-              <p className="mt-1 text-[10px] leading-relaxed text-[#718078]">
-                Apply observed field measurements to future planning estimates.
-              </p>
+              <h2 className="text-base font-semibold text-[#29352f]">Recalibrate optimizer</h2>
             </div>
           </div>
           <button
             type="button"
             onClick={() => setCalibrated(true)}
-            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-[#819572] px-4 text-[10px] font-semibold text-white transition hover:bg-[#657b58]"
+            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-[#819572] px-4 text-base font-semibold text-white transition hover:bg-[#657b58]"
           >
             {calibrated ? <Check size={14} /> : <RefreshCw size={14} />}
             {calibrated ? "Model recalibrated" : "Recalibrate model"}
@@ -236,19 +216,18 @@ export default function Page5PredictionvsRealityCalibrationLoop() {
         {calibrated && (
           <div
             role="status"
-            className="fixed bottom-4 left-4 right-4 z-50 flex items-center gap-2 rounded-xl border border-emerald-800/15 bg-[#eef1e9] px-4 py-3 text-[11px] font-medium text-[#657b58] shadow-lg sm:bottom-6 sm:left-auto sm:right-6 sm:w-fit"
+            className="fixed bottom-4 left-4 right-4 z-50 flex items-center gap-2 rounded-xl border border-emerald-800/15 bg-[#eef1e9] px-4 py-3 text-base font-medium text-[#657b58] shadow-lg sm:bottom-6 sm:left-auto sm:right-6 sm:w-fit"
           >
             <Check size={15} />
             Model weights updated based on observed field data.
           </div>
         )}
 
-        <footer className="mt-4 flex flex-wrap items-center justify-between gap-2 px-1 text-[9px] text-slate-500">
+        <footer className="mt-4 flex flex-wrap items-center justify-between gap-2 px-1 text-sm text-slate-500">
           <a href="/page4" className="inline-flex min-h-9 items-center gap-1.5 hover:text-emerald-800">
             <ArrowLeft size={12} />
             Back to scenario comparison
           </a>
-          <span className="inline-flex items-center gap-1.5"><Info size={11} />Demonstration measurements</span>
         </footer>
       </div>
     </main>
@@ -271,13 +250,13 @@ function SummaryMetric({
   return (
     <article className="min-w-0 rounded-xl border border-white/[0.08] bg-[#0e161f] p-3.5 sm:rounded-2xl sm:p-4">
       <div className="flex items-start justify-between gap-2">
-        <p className="text-[9px] font-medium leading-relaxed text-slate-500">{label}</p>
+        <p className="text-base font-medium leading-relaxed text-slate-500">{label}</p>
         <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-emerald-900/[0.06] text-emerald-800">{icon}</span>
       </div>
-      <p className={`mt-2 break-words font-semibold tabular-nums ${status ? "text-[13px]" : "text-lg"} text-slate-100`}>
+      <p className={`mt-2 break-words font-semibold tabular-nums ${status ? "text-lg" : "text-xl"} text-slate-100`}>
         {value}
       </p>
-      <p className="mt-0.5 text-[9px] leading-relaxed text-slate-500">{unit}</p>
+      <p className="mt-0.5 text-base leading-relaxed text-slate-500">{unit}</p>
     </article>
   );
 }
