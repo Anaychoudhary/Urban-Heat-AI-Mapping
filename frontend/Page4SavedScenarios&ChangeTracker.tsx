@@ -48,14 +48,11 @@ export default function Page4SavedScenariosChangeTracker() {
             <GitCompareArrows size={18} />
           </span>
           <div className="min-w-0">
-            <p className="truncate text-xs font-semibold text-slate-100 sm:text-sm">
+            <p className="truncate text-base font-semibold text-slate-100">
               PMC Climate Action
             </p>
-            <p className="mt-0.5 text-[9px] font-medium uppercase tracking-[0.15em] text-slate-500">
-              Scenario management
-            </p>
           </div>
-          <span className="ml-auto hidden items-center gap-1.5 rounded-full border border-emerald-800/10 bg-emerald-900/[0.045] px-3 py-1.5 text-[10px] font-medium text-emerald-800 sm:inline-flex">
+          <span className="ml-auto hidden items-center gap-1.5 rounded-full border border-emerald-800/10 bg-emerald-900/[0.045] px-3 py-1.5 text-sm font-medium text-emerald-800 sm:inline-flex">
             <MapPin size={12} />
             Aundh Ward
           </span>
@@ -64,17 +61,9 @@ export default function Page4SavedScenariosChangeTracker() {
 
       <div className="mx-auto max-w-[1280px] px-4 pb-8 pt-6 sm:px-7 sm:pt-9">
         <div className="mb-6">
-          <p className="mb-2 text-[9px] font-semibold uppercase tracking-[0.18em] text-slate-500">
-            Climate intelligence <span className="mx-1.5">/</span> Ward planning{" "}
-            <span className="mx-1.5">/</span>{" "}
-            <span className="text-emerald-800">Scenario comparison</span>
-          </p>
           <h1 className="text-[22px] font-semibold tracking-tight text-slate-100 sm:text-[28px]">
-            Scenario Management &amp; Plan Diff Analysis
+            Scenario comparison
           </h1>
-          <p className="mt-1.5 text-[11px] text-slate-500 sm:text-xs">
-            Compare the baseline with the field-adjusted ward plan.
-          </p>
         </div>
 
         <section
@@ -123,12 +112,9 @@ export default function Page4SavedScenariosChangeTracker() {
         <section className="mt-5 overflow-hidden rounded-2xl border border-white/[0.08] bg-[#0e161f]">
           <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/[0.07] px-4 py-4 sm:px-5">
             <div>
-              <h2 className="text-sm font-semibold text-slate-100">Plan changes</h2>
-              <p className="mt-1 text-[10px] text-slate-500">
-                Allocation differences by hotspot and intervention
-              </p>
+              <h2 className="text-base font-semibold text-slate-100">Plan changes</h2>
             </div>
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-800/10 bg-emerald-900/[0.045] px-2.5 py-1.5 text-[9px] font-medium text-emerald-800">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-800/10 bg-emerald-900/[0.045] px-2.5 py-1.5 text-sm font-medium text-emerald-800">
               <Check size={12} />
               Field report applied
             </span>
@@ -137,7 +123,7 @@ export default function Page4SavedScenariosChangeTracker() {
           <div className="overflow-x-auto">
             <table className="w-full min-w-[820px] border-collapse text-left">
               <thead>
-                <tr className="bg-white/[0.025] text-[9px] font-semibold uppercase tracking-[0.11em] text-slate-500">
+                <tr className="bg-white/[0.025] text-sm font-semibold uppercase tracking-[0.11em] text-slate-500">
                   <th className="px-4 py-3 sm:px-5">Hotspot</th>
                   <th className="px-4 py-3">Intervention type</th>
                   <th className="px-4 py-3">Scenario A</th>
@@ -182,7 +168,7 @@ export default function Page4SavedScenariosChangeTracker() {
               </tbody>
             </table>
           </div>
-          <p className="border-t border-white/[0.06] px-4 py-3 text-[10px] text-slate-500 sm:px-5">
+          <p className="border-t border-white/[0.06] px-4 py-3 text-sm text-slate-500 sm:px-5">
             Swipe horizontally to review all comparison columns.
           </p>
         </section>
@@ -193,10 +179,7 @@ export default function Page4SavedScenariosChangeTracker() {
               <ShieldCheck size={17} />
             </span>
             <div>
-              <h2 className="text-xs font-semibold text-slate-200">Scenario actions</h2>
-              <p className="mt-1 text-[10px] text-slate-500">
-                Export the comparison or approve the active scenario.
-              </p>
+              <h2 className="text-base font-semibold text-slate-200">Scenario actions</h2>
             </div>
           </div>
           <div className="grid gap-2 sm:flex">
@@ -206,7 +189,7 @@ export default function Page4SavedScenariosChangeTracker() {
                 setExported(true);
                 window.print();
               }}
-              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-white/[0.1] px-4 text-[10px] font-semibold text-slate-300 transition hover:bg-white/[0.04]"
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-white/[0.1] px-4 text-base font-semibold text-slate-300 transition hover:bg-white/[0.04]"
             >
               <Download size={14} />
               {exported ? "Report ready to print" : "Export PDF Report for Commissioner"}
@@ -214,20 +197,20 @@ export default function Page4SavedScenariosChangeTracker() {
             <button
               type="button"
               onClick={() => setApproved(true)}
-              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-emerald-400 px-4 text-[10px] font-semibold text-[#07120f] shadow-md shadow-emerald-950/10 transition hover:bg-emerald-300"
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-emerald-400 px-4 text-base font-semibold text-[#07120f] shadow-md shadow-emerald-950/10 transition hover:bg-emerald-300"
             >
               {approved ? <Check size={14} /> : <ShieldCheck size={14} />}
               {approved ? "Scenario B approved" : "Approve & Deploy Scenario B"}
             </button>
           </div>
           {approved && (
-            <p role="status" className="text-[10px] font-medium text-emerald-800 sm:basis-full sm:text-right">
-              Scenario B marked approved for deployment.
+            <p role="status" className="text-base font-medium text-emerald-800 sm:basis-full sm:text-right">
+              Scenario B approved for deployment.
             </p>
           )}
         </section>
 
-        <footer className="mt-4 flex flex-wrap items-center justify-between gap-2 px-1 text-[9px] text-slate-500 print:hidden">
+        <footer className="mt-4 flex flex-wrap items-center justify-between gap-2 px-1 text-sm text-slate-500 print:hidden">
           <a href="/page3" className="inline-flex min-h-9 items-center gap-1.5 hover:text-emerald-800">
             <ArrowLeft size={12} />
             Back to field report
@@ -255,7 +238,7 @@ function ScenarioSelect({
 }) {
   return (
     <label className="block min-w-0">
-      <span className="mb-1.5 block text-[9px] font-semibold uppercase tracking-[0.12em] text-slate-500">
+      <span className="mb-1.5 block text-base font-semibold uppercase tracking-[0.12em] text-slate-500">
         {label}
       </span>
       <span className="relative block">
@@ -264,7 +247,7 @@ function ScenarioSelect({
           onChange={(event) =>
             onChange(event.target.value === "baseline" ? "baseline" : "field")
           }
-          className="h-11 w-full appearance-none rounded-lg border border-white/[0.1] bg-white/[0.025] px-3 pr-9 text-[10px] font-medium text-slate-200 outline-none transition focus:border-emerald-800/40"
+          className="h-11 w-full appearance-none rounded-lg border border-white/[0.1] bg-white/[0.025] px-3 pr-9 text-base font-medium text-slate-200 outline-none transition focus:border-emerald-800/40"
         >
           {options.map((option) => (
             <option key={option.value} value={option.value}>
@@ -298,10 +281,10 @@ function ScenarioSummary({
     <article className={`rounded-2xl border p-4 sm:p-5 ${active ? "border-emerald-800/15 bg-[#eef1e9]" : "border-white/[0.08] bg-[#0e161f]"}`}>
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
-          <p className={`text-[9px] font-semibold uppercase tracking-[0.13em] ${active ? "text-emerald-800" : "text-slate-500"}`}>{label}</p>
-          <h2 className={`mt-1 truncate text-xs font-semibold ${active ? "text-[#29352f]" : "text-slate-200"}`}>{title}</h2>
+          <p className={`text-sm font-semibold uppercase tracking-[0.13em] ${active ? "text-emerald-800" : "text-slate-500"}`}>{label}</p>
+          <h2 className={`mt-1 truncate text-base font-semibold ${active ? "text-[#29352f]" : "text-slate-200"}`}>{title}</h2>
         </div>
-        <span className={`shrink-0 rounded-full px-2 py-1 text-[8px] font-semibold ${active ? "bg-[#dce5d5] text-[#657b58]" : "bg-white/[0.05] text-slate-500"}`}>
+        <span className={`shrink-0 rounded-full px-2 py-1 text-sm font-semibold ${active ? "bg-[#dce5d5] text-[#657b58]" : "bg-white/[0.05] text-slate-500"}`}>
           {active ? "ACTIVE" : "BASELINE"}
         </span>
       </div>
@@ -317,8 +300,8 @@ function ScenarioSummary({
 function Metric({ label, value, active }: { label: string; value: string; active: boolean }) {
   return (
     <div className="min-w-0">
-      <p className={`text-[8px] leading-relaxed ${active ? "text-[#718078]" : "text-slate-500"}`}>{label}</p>
-      <p className={`mt-1 break-words text-[12px] font-semibold tabular-nums sm:text-sm ${active ? "text-[#29352f]" : "text-slate-100"}`}>{value}</p>
+      <p className={`text-base leading-relaxed ${active ? "text-[#718078]" : "text-slate-500"}`}>{label}</p>
+      <p className={`mt-1 break-words text-lg font-semibold tabular-nums ${active ? "text-[#29352f]" : "text-slate-100"}`}>{value}</p>
     </div>
   );
 }
@@ -349,23 +332,23 @@ function DiffRow({
   return (
     <tr className="align-top">
       <td className="px-4 py-4 sm:px-5">
-        <p className="text-[10px] font-semibold text-slate-200">{hotspot}</p>
-        <p className="mt-1 text-[9px] text-slate-500">{locality}</p>
+        <p className="text-base font-semibold text-slate-200">{hotspot}</p>
+        <p className="mt-1 text-base text-slate-500">{locality}</p>
       </td>
       <td className="px-4 py-4">
-        <span className="flex items-center gap-2 text-[10px] font-medium text-slate-300">
+        <span className="flex items-center gap-2 text-base font-medium text-slate-300">
           <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-emerald-900/[0.06] text-emerald-800">{icon}</span>
           {intervention}
         </span>
       </td>
-      <td className="px-4 py-4 text-[10px] font-medium tabular-nums text-slate-400">{scenarioA}</td>
-      <td className="px-4 py-4 text-[10px] font-semibold tabular-nums text-slate-200">{scenarioB}</td>
+      <td className="px-4 py-4 text-base font-medium tabular-nums text-slate-400">{scenarioA}</td>
+      <td className="px-4 py-4 text-base font-semibold tabular-nums text-slate-200">{scenarioB}</td>
       <td className="px-4 py-4 sm:px-5">
-        <span className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-[9px] font-semibold tabular-nums ${isNeutral ? "bg-slate-100 text-slate-600" : isReduction ? "bg-rose-100 text-rose-700" : "bg-emerald-100 text-emerald-800"}`}>
+        <span className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-sm font-semibold tabular-nums ${isNeutral ? "bg-slate-100 text-slate-600" : isReduction ? "bg-rose-100 text-rose-700" : "bg-emerald-100 text-emerald-800"}`}>
           {isNeutral ? null : isReduction ? <ArrowDownRight size={12} /> : <ArrowUpRight size={12} />}
           {variance}
         </span>
-        <p className={`mt-1.5 max-w-[180px] text-[9px] leading-relaxed ${isReduction ? "text-rose-700" : "text-emerald-800"}`}>{reason}</p>
+        <p className={`mt-1.5 max-w-[180px] text-base leading-relaxed ${isReduction ? "text-rose-700" : "text-emerald-800"}`}>{reason}</p>
       </td>
     </tr>
   );

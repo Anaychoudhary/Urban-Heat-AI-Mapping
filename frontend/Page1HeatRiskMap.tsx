@@ -1,26 +1,20 @@
-import { useEffect, useMemo, useState } from "react";
-import type { FormEvent, ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import type { ReactNode } from "react";
 import {
-  ArrowDownRight,
   ArrowRight,
-  ArrowUpRight,
   Building2,
   ChevronDown,
-  ChevronLeft,
-  ChevronRight,
   CircleHelp,
   Clock3,
   Crosshair,
   Flame,
   Layers3,
   Leaf,
+  Maximize2,
   MapPin,
-  Search,
-  ShieldAlert,
+  Minimize2,
   Trees,
-  UsersRound,
   Wind,
-  X,
 } from "lucide-react";
 import {
   Circle,
@@ -37,9 +31,6 @@ import "leaflet/dist/leaflet.css";
 export interface Ward {
   id: string;
   name: string;
-  riskLevel: "Critical" | "High" | "Moderate";
-  averageTemp: number;
-  vulnerablePopulation: string;
 }
 
 export interface Intervention {
@@ -62,42 +53,59 @@ export interface Hotspot {
   interventions: Intervention[];
 }
 
-export interface PuneLocality {
+interface City {
+  id: string;
   name: string;
-  coordinates: [number, number];
+  region: string;
+  center: [number, number];
+  wards: Ward[];
 }
 
 const puneCenter: [number, number] = [18.5204, 73.8567];
+const ALL_WARDS = "all";
 
 const wards: Ward[] = [
-  {
-    id: "aundh",
-    name: "Aundh",
-    riskLevel: "Moderate",
-    averageTemp: 38.7,
-    vulnerablePopulation: "18.4k",
-  },
-  {
-    id: "kothrud",
-    name: "Kothrud",
-    riskLevel: "High",
-    averageTemp: 40.1,
-    vulnerablePopulation: "24.8k",
-  },
-  {
-    id: "shivajinagar",
-    name: "Shivajinagar",
-    riskLevel: "Critical",
-    averageTemp: 42.6,
-    vulnerablePopulation: "31.2k",
-  },
-  {
-    id: "hadapsar",
-    name: "Hadapsar",
-    riskLevel: "Critical",
-    averageTemp: 43.1,
-    vulnerablePopulation: "36.7k",
-  },
+  { id: "01", name: "Kalas - Dhanori - Remaining Lohgaon" },
+  { id: "02", name: "Phulenagar - Nagpur Chawl" },
+  { id: "03", name: "Viman nagar - Lohgaon" },
+  { id: "04", name: "Kharadi - Wagholi" },
+  { id: "05", name: "Kalyaninagar - Vadagaonsheri" },
+  { id: "06", name: "Yerawada - Gandhinagar" },
+  { id: "07", name: "Gokhale nagar - Wakadewadi" },
+  { id: "08", name: "Aundh - Bopodi" },
+  { id: "09", name: "Sus - Baner - Pashan" },
+  { id: "10", name: "Bavdhan - Bhusari Colony" },
+  { id: "11", name: "Ram Baug Colony - Shivtirthanagar" },
+  { id: "12", name: "Ch. Shivajinagar - Model Colony" },
+  { id: "13", name: "Pune Station - Jay Jawan Nagar" },
+  { id: "14", name: "Koregaon Park - Ghorpadi - Mundhawa" },
+  { id: "15", name: "Manjari Budruk - Keshavnagar - Sadesatara Nali" },
+  { id: "16", name: "Hadapsar - Satavwadi" },
+  { id: "17", name: "Ramtekdi - Malwadi - Vaiduwadi" },
+  { id: "18", name: "Vanawadi - Salukhe Vihar" },
+  { id: "19", name: "Kondhawa Khurd - Kausarbaug" },
+  { id: "20", name: "Shankar Maharaj Math - Bibwewadi" },
+  { id: "21", name: "Mukundnagar - Salisbury Park" },
+  { id: "22", name: "Kashewadi - Dias Plot" },
+  { id: "23", name: "Ravivar Peth - Nana Peth" },
+  { id: "24", name: "Kasaba Ganpati - Kamala Nehru Hospital - K.E.M. Hospital" },
+  { id: "25", name: "Shaniwar Peth - Mahatma Phule Mandai" },
+  { id: "26", name: "Ghorpade Peth - Guruvar Peth - Samatabhumi" },
+  { id: "27", name: "Navi Peth - Parvati" },
+  { id: "28", name: "Janata Vasahat - Hingane Khurd" },
+  { id: "29", name: "Deccan Gymkhana - Happy Colony" },
+  { id: "30", name: "Karvenagar - Hingne Home Colony" },
+  { id: "31", name: "Mayur Colony - Kothrud" },
+  { id: "32", name: "Warje - Popular Nagar" },
+  { id: "33", name: "Shivane - Khadakwasala - Dhayari (Part)" },
+  { id: "34", name: "Narhe - Vadgaon Budruk - Dhayari" },
+  { id: "35", name: "Suncity - Manik Bagh" },
+  { id: "36", name: "Sahakarnagar - Padmavati" },
+  { id: "37", name: "Dhankawadi - Katraj Dairy" },
+  { id: "38", name: "Balaji Nagar - Ambegaon - Katraj" },
+  { id: "39", name: "Uppar Super Indiranagar" },
+  { id: "40", name: "Kondhwa Budruk - Yewalewadi" },
+  { id: "41", name: "Mohammadwadi - Undri" },
 ];
 
 const hotspots: Hotspot[] = [
@@ -171,16 +179,20 @@ const hotspots: Hotspot[] = [
   },
 ];
 
-const localities: PuneLocality[] = [
-  { name: "Shivajinagar", coordinates: [18.5314, 73.8478] },
-  { name: "Hadapsar", coordinates: [18.5018, 73.9272] },
-  { name: "Kothrud", coordinates: [18.5074, 73.8077] },
-  { name: "Aundh", coordinates: [18.559, 73.8075] },
-  { name: "Koregaon Park", coordinates: [18.5362, 73.8958] },
-  { name: "Baner", coordinates: [18.559, 73.7868] },
-  { name: "Swargate", coordinates: [18.5018, 73.8636] },
-  { name: "Pimpri", coordinates: [18.6298, 73.7997] },
+const cities: City[] = [
+  { id: "pune", name: "Pune", region: "Maharashtra", center: puneCenter, wards },
+  { id: "mumbai", name: "Mumbai", region: "Maharashtra", center: [19.076, 72.8777], wards: [] },
+  { id: "delhi", name: "Delhi", region: "Delhi", center: [28.6139, 77.209], wards: [] },
+  { id: "nagpur", name: "Nagpur", region: "Maharashtra", center: [21.1458, 79.0882], wards: [] },
+  { id: "noida", name: "Noida", region: "Uttar Pradesh", center: [28.5355, 77.391], wards: [] },
+  { id: "chennai", name: "Chennai", region: "Tamil Nadu", center: [13.0827, 80.2707], wards: [] },
+  { id: "ahmedabad", name: "Ahmedabad", region: "Gujarat", center: [23.0225, 72.5714], wards: [] },
+  { id: "kolkata", name: "Kolkata", region: "West Bengal", center: [22.5726, 88.3639], wards: [] },
+  { id: "bengaluru", name: "Bengaluru", region: "Karnataka", center: [12.9716, 77.5946], wards: [] },
+  { id: "hyderabad", name: "Hyderabad", region: "Telangana", center: [17.385, 78.4867], wards: [] },
 ];
+
+type MapLayer = "all" | "risk-zones" | "hotspots" | "base-map";
 
 const getRiskColor = (risk: Hotspot["risk"]) =>
   risk === "Critical" ? "#fb6470" : "#f4ad54";
@@ -210,69 +222,83 @@ function MapViewport({
   return null;
 }
 
-function InterventionIcon({ type }: { type: Intervention["icon"] }) {
-  if (type === "trees") return <Trees size={16} strokeWidth={1.8} />;
-  if (type === "roof") return <Building2 size={16} strokeWidth={1.8} />;
-  return <Wind size={16} strokeWidth={1.8} />;
+function MapSizeHandler({ resizeKey }: { resizeKey: boolean }) {
+  const map = useMap();
+
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => map.invalidateSize());
+    return () => window.cancelAnimationFrame(frame);
+  }, [map, resizeKey]);
+
+  return null;
 }
 
 export default function Page1HeatRiskMap() {
-  const defaultWardHotspot = hotspots.find((hotspot) => hotspot.locality === wards[0].name) ?? hotspots[0];
-  const [selectedWard, setSelectedWard] = useState(wards[0].id);
-  const [selectedHotspotId, setSelectedHotspotId] = useState(defaultWardHotspot.id);
-  const [query, setQuery] = useState("");
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [mapTarget, setMapTarget] = useState<[number, number]>(defaultWardHotspot.coordinates);
+  const [selectedCityId, setSelectedCityId] = useState("pune");
+  const [selectedWardId, setSelectedWardId] = useState(ALL_WARDS);
+  const [selectedHotspotId, setSelectedHotspotId] = useState("A");
+  const [mapLayer, setMapLayer] = useState<MapLayer>("all");
+  const [isMapFullscreen, setIsMapFullscreen] = useState(false);
+  const [mapTarget, setMapTarget] = useState<[number, number]>(puneCenter);
+  const mapPanelRef = useRef<HTMLDivElement>(null);
   const [mapTilesUnavailable, setMapTilesUnavailable] = useState(false);
 
-  const selectedWardData = wards.find((ward) => ward.id === selectedWard) ?? wards[0];
-  const selectedHotspot =
-    hotspots.find((hotspot) => hotspot.id === selectedHotspotId) ?? hotspots[0];
-  const matchingLocalities = useMemo(
-    () =>
-      query.trim()
-        ? localities.filter((locality) =>
-            locality.name.toLowerCase().includes(query.trim().toLowerCase()),
-          )
-        : [],
-    [query],
+  const selectedCity = cities.find((city) => city.id === selectedCityId);
+  const availableWards = selectedCity?.wards ?? [];
+  const selectedWardData = availableWards.find(
+    (ward) => ward.id === selectedWardId,
   );
+  const visibleHotspots = useMemo(
+    () =>
+      selectedCityId === "pune" && selectedWardId === ALL_WARDS
+        ? hotspots
+        : [],
+    [selectedCityId, selectedWardId],
+  );
+  const showRiskZones = mapLayer === "all" || mapLayer === "risk-zones";
+  const showHotspotMarkers = mapLayer === "all" || mapLayer === "hotspots";
 
-  const chooseLocality = (locality: PuneLocality) => {
-    setQuery(locality.name);
-    setMapTarget(locality.coordinates);
-    setSearchOpen(false);
-    const matchingHotspot = hotspots.find(
-      (hotspot) => hotspot.locality === locality.name,
-    );
-    if (matchingHotspot) selectHotspot(matchingHotspot);
-  };
+  useEffect(() => {
+    const updateFullscreenState = () => {
+      setIsMapFullscreen(document.fullscreenElement === mapPanelRef.current);
+    };
+    document.addEventListener("fullscreenchange", updateFullscreenState);
+    return () =>
+      document.removeEventListener("fullscreenchange", updateFullscreenState);
+  }, []);
 
-  const handleSearch = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (matchingLocalities[0]) chooseLocality(matchingLocalities[0]);
+  const handleCityChange = (cityId: string) => {
+    const city = cities.find((item) => item.id === cityId);
+    setSelectedCityId(cityId);
+    setSelectedWardId(ALL_WARDS);
+    setSelectedHotspotId(cityId === "pune" ? "A" : "");
+    setMapTarget(city?.center ?? puneCenter);
   };
 
   const handleWardChange = (wardId: string) => {
-    setSelectedWard(wardId);
-    const wardHotspot: Record<string, string> = {
-      aundh: "D",
-      kothrud: "C",
-      shivajinagar: "A",
-      hadapsar: "B",
-    };
-    const hotspot = hotspots.find(
-      (item) => item.id === (wardHotspot[wardId] ?? "A"),
-    );
-    if (hotspot) {
-      setSelectedHotspotId(hotspot.id);
-      setMapTarget(hotspot.coordinates);
+    setSelectedWardId(wardId);
+    if (wardId === ALL_WARDS) {
+      setSelectedHotspotId("A");
+      setMapTarget(selectedCity?.center ?? puneCenter);
+      return;
     }
+    setSelectedHotspotId("");
+    setMapTarget(selectedCity?.center ?? puneCenter);
   };
 
   const selectHotspot = (hotspot: Hotspot) => {
     setSelectedHotspotId(hotspot.id);
     setMapTarget(hotspot.coordinates);
+  };
+
+  const toggleMapFullscreen = () => {
+    const mapPanel = mapPanelRef.current;
+    if (!mapPanel) return;
+    if (document.fullscreenElement === mapPanel) {
+      void document.exitFullscreen();
+    } else {
+      void mapPanel.requestFullscreen();
+    }
   };
 
   return (
@@ -283,101 +309,68 @@ export default function Page1HeatRiskMap() {
       </div>
 
       <header className="relative z-20 border-b border-white/[0.07] bg-[#0c131b]/90">
-        <div className="mx-auto flex min-h-[76px] max-w-[1600px] flex-wrap items-center gap-x-6 gap-y-3 px-5 py-3 sm:px-8">
+        <div className="mx-auto flex max-w-[1600px] flex-wrap items-center justify-between gap-x-8 gap-y-4 px-5 py-3 sm:px-8">
           <a href="/" className="flex min-w-0 items-center gap-3">
             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-rose-400/20 bg-rose-400/[0.09] text-rose-300">
               <Flame size={21} strokeWidth={1.8} />
             </span>
-            <span className="min-w-0">
-              <span className="block truncate text-sm font-semibold tracking-wide text-slate-100">
-                PMC Heat Island Risk Map
-              </span>
-              <span className="mt-0.5 block text-[10px] font-medium uppercase tracking-[0.17em] text-slate-500">
-                Pune Municipal Corporation
-              </span>
+            <span className="truncate text-sm font-semibold tracking-wide text-slate-100 sm:text-base">
+              Urban-Heat-AI-Mapping
             </span>
           </a>
 
-          <div className="ml-auto flex items-center gap-3">
-            <label className="relative hidden lg:block">
-              <span className="sr-only">Select ward</span>
-              <select
-                value={selectedWard}
-                onChange={(event) => handleWardChange(event.target.value)}
-                className="h-10 min-w-[176px] appearance-none rounded-lg border border-white/[0.09] bg-[#111a24] py-2 pl-3.5 pr-10 text-xs font-medium text-slate-200 outline-none transition hover:border-white/20 focus:border-emerald-400/50"
-              >
-                {wards.map((ward) => (
-                  <option key={ward.id} value={ward.id}>
-                    {ward.name} Ward
-                  </option>
-                ))}
-              </select>
-              <ChevronDown
-                size={15}
-                className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-500"
-              />
+          <div className="flex w-full flex-wrap items-end gap-3 sm:w-auto sm:ml-auto">
+            <label className="flex min-w-[150px] flex-1 flex-col gap-1 sm:flex-none">
+              <span className="text-base font-medium text-slate-500">Select City</span>
+              <span className="relative">
+                <select
+                  aria-label="Select City"
+                  value={selectedCityId}
+                  onChange={(event) => handleCityChange(event.target.value)}
+                  className="h-10 w-full appearance-none rounded-lg border border-white/[0.09] bg-[#111a24] py-2 pl-3.5 pr-10 text-base font-medium text-slate-200 outline-none transition hover:border-white/20 focus:border-emerald-400/50 sm:min-w-[160px]"
+                >
+                  <option value="">Select a city</option>
+                  {cities.map((city) => (
+                    <option key={city.id} value={city.id}>
+                      {city.name}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown
+                  size={15}
+                  className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-500"
+                />
+              </span>
             </label>
 
-            <div className="relative hidden lg:block">
-              <form
-                onSubmit={handleSearch}
-                className="flex h-10 w-[250px] items-center gap-2.5 rounded-lg border border-white/[0.09] bg-[#111a24] px-3 transition focus-within:border-emerald-400/50"
-              >
-                <Search size={15} className="shrink-0 text-slate-500" />
-                <input
-                  aria-label="Search Pune localities"
-                  value={query}
-                  onChange={(event) => {
-                    setQuery(event.target.value);
-                    setSearchOpen(true);
-                  }}
-                  onFocus={() => setSearchOpen(true)}
-                  onBlur={() => window.setTimeout(() => setSearchOpen(false), 150)}
-                  placeholder="Search Pune localities..."
-                  className="w-full bg-transparent text-xs text-slate-200 outline-none placeholder:text-slate-600"
-                />
-                {query && (
-                  <button
-                    type="button"
-                    aria-label="Clear search"
-                    onClick={() => {
-                      setQuery("");
-                      setMapTarget(puneCenter);
-                    }}
-                    className="text-slate-500 transition hover:text-slate-200"
-                  >
-                    <X size={14} />
-                  </button>
-                )}
-              </form>
-              {searchOpen && matchingLocalities.length > 0 && (
-                <div className="absolute right-0 top-12 z-[1000] w-full overflow-hidden rounded-xl border border-white/10 bg-[#111a24] p-1.5 shadow-2xl shadow-black/50">
-                  {matchingLocalities.slice(0, 5).map((locality) => (
-                    <button
-                      key={locality.name}
-                      type="button"
-                      onMouseDown={(event) => event.preventDefault()}
-                      onClick={() => chooseLocality(locality)}
-                      className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-xs text-slate-300 transition hover:bg-white/[0.06] hover:text-white"
-                    >
-                      <MapPin size={14} className="text-emerald-400" />
-                      {locality.name}, Pune
-                    </button>
+            <label className="flex min-w-[170px] flex-1 flex-col gap-1 sm:flex-none">
+              <span className="text-base font-medium text-slate-500">Select Ward</span>
+              <span className="relative">
+                <select
+                  aria-label="Select Ward"
+                  value={selectedWardId}
+                  disabled={!selectedCity || availableWards.length === 0}
+                  onChange={(event) => handleWardChange(event.target.value)}
+                  className="h-10 w-full appearance-none rounded-lg border border-white/[0.09] bg-[#111a24] py-2 pl-3.5 pr-10 text-base font-medium text-slate-200 outline-none transition hover:border-white/20 focus:border-emerald-400/50 disabled:cursor-not-allowed disabled:opacity-50 sm:min-w-[190px]"
+                >
+                  <option value={ALL_WARDS}>
+                    {availableWards.length ? "All Wards" : selectedCity ? "Ward data unavailable" : "Select a city"}
+                  </option>
+                  {availableWards.map((ward) => (
+                    <option key={ward.id} value={ward.id}>
+                      {ward.name} (Ward {ward.id})
+                    </option>
                   ))}
-                </div>
-              )}
-            </div>
+                </select>
+                <ChevronDown
+                  size={15}
+                  className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-500"
+                />
+              </span>
+            </label>
+          </div>
 
-            <span className="hidden h-8 w-px bg-white/[0.08] xl:block" />
-            <div className="hidden items-center gap-2 xl:flex">
-              <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-50" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
-              </span>
-              <span className="text-[11px] font-medium text-slate-400">
-                Live monitoring
-              </span>
-            </div>
+          <div className="ml-auto flex items-center gap-3 sm:ml-0">
             <button
               type="button"
               aria-label="Help"
@@ -386,155 +379,81 @@ export default function Page1HeatRiskMap() {
               <CircleHelp size={17} />
             </button>
           </div>
-
-          <div className="flex w-full items-center gap-2 lg:hidden">
-            <label className="relative shrink-0">
-              <span className="sr-only">Select ward</span>
-              <select
-                value={selectedWard}
-                onChange={(event) => handleWardChange(event.target.value)}
-                className="h-10 w-[132px] appearance-none rounded-lg border border-white/[0.09] bg-[#111a24] py-2 pl-3 pr-8 text-xs font-medium text-slate-200 outline-none transition focus:border-emerald-400/50"
-              >
-                {wards.map((ward) => (
-                  <option key={ward.id} value={ward.id}>
-                    {ward.name}
-                  </option>
-                ))}
-              </select>
-              <ChevronDown
-                size={14}
-                className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-500"
-              />
-            </label>
-
-            <div className="relative min-w-0 flex-1">
-              <form
-                onSubmit={handleSearch}
-                className="flex h-10 items-center gap-2.5 rounded-lg border border-white/[0.09] bg-[#111a24] px-3 transition focus-within:border-emerald-400/50"
-              >
-                <Search size={15} className="shrink-0 text-slate-500" />
-                <input
-                  aria-label="Search Pune localities"
-                  value={query}
-                  onChange={(event) => {
-                    setQuery(event.target.value);
-                    setSearchOpen(true);
-                  }}
-                  onFocus={() => setSearchOpen(true)}
-                  onBlur={() => window.setTimeout(() => setSearchOpen(false), 150)}
-                  placeholder="Search Pune localities..."
-                  className="w-full min-w-0 bg-transparent text-xs text-slate-200 outline-none placeholder:text-slate-600"
-                />
-                {query && (
-                  <button
-                    type="button"
-                    aria-label="Clear search"
-                    onClick={() => {
-                      setQuery("");
-                      setMapTarget(puneCenter);
-                    }}
-                    className="shrink-0 text-slate-500 transition hover:text-slate-200"
-                  >
-                    <X size={14} />
-                  </button>
-                )}
-              </form>
-              {searchOpen && matchingLocalities.length > 0 && (
-                <div className="absolute left-0 right-0 top-12 z-[1000] overflow-hidden rounded-xl border border-white/10 bg-[#111a24] p-1.5 shadow-2xl shadow-black/20">
-                  {matchingLocalities.slice(0, 5).map((locality) => (
-                    <button
-                      key={locality.name}
-                      type="button"
-                      onMouseDown={(event) => event.preventDefault()}
-                      onClick={() => chooseLocality(locality)}
-                      className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-xs text-slate-300 transition hover:bg-white/[0.06] hover:text-white"
-                    >
-                      <MapPin size={14} className="text-emerald-400" />
-                      {locality.name}, Pune
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
         </div>
       </header>
 
       <div className="relative z-10 mx-auto max-w-[1600px] px-5 pb-8 pt-6 sm:px-8">
         <section className="mb-5 flex flex-wrap items-end justify-between gap-4">
           <div>
-            <div className="mb-2 flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-500">
-              <span>Climate intelligence</span>
-              <ChevronRight size={12} />
-              <span className="text-emerald-400/90">Heat risk overview</span>
-            </div>
             <h1 className="text-[23px] font-semibold tracking-tight text-white sm:text-[27px]">
               Heat risk command map
             </h1>
-            <p className="mt-1.5 text-xs text-slate-500">
-              Identify heat-vulnerable communities and prioritize ward-level action.
-            </p>
           </div>
 
-          <div className="flex items-center gap-2 rounded-lg border border-white/[0.07] bg-white/[0.025] px-3 py-2 text-[11px] text-slate-400">
+          <div className="flex items-center gap-2 rounded-lg border border-white/[0.07] bg-white/[0.025] px-3 py-2 text-base text-slate-400">
             <Clock3 size={14} className="text-slate-500" />
-            Data updated <span className="font-medium text-slate-300">Today, 14:32</span>
-            <span className="ml-1 h-1.5 w-1.5 rounded-full bg-emerald-400" />
+            Data updated <span className="font-medium text-slate-300">Project sample</span>
+            <span className="ml-1 h-1.5 w-1.5 rounded-full bg-amber-400" />
           </div>
         </section>
 
-        <section className="mb-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
-          <SummaryMetric
-            label="Ward average"
-            value={`${selectedWardData.averageTemp.toFixed(1)}°`}
-            unit="C"
-            icon={<Flame size={16} />}
-            accent="rose"
-            change="+1.8° vs. seasonal avg."
-          />
-          <SummaryMetric
-            label="Active hotspots"
-            value={String(hotspots.length).padStart(2, "0")}
-            unit="zones"
-            icon={<Crosshair size={16} />}
-            accent="amber"
-            change="2 critical · 2 moderate"
-          />
-          <SummaryMetric
-            label="People at risk"
-            value={selectedWardData.vulnerablePopulation}
-            unit="residents"
-            icon={<UsersRound size={16} />}
-            accent="amber"
-            change="Elderly & informal settlements"
-          />
-          <SummaryMetric
-            label="Vegetation cover"
-            value="18.6"
-            unit="%"
-            icon={<Leaf size={16} />}
-            accent="emerald"
-            change="−2.3% over the last 5 years"
-          />
-        </section>
-
-        <section className="grid min-h-[680px] grid-cols-1 gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(340px,0.96fr)]">
-          <div className="flex min-h-[560px] flex-col overflow-hidden rounded-2xl border border-white/[0.08] bg-[#0e161f]">
-            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.07] px-4 py-3.5 sm:px-5">
-              <div className="flex items-center gap-3">
-                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-rose-400/[0.1] text-rose-300">
-                  <Layers3 size={16} />
+        <section className="flex flex-col gap-4">
+          <div
+            ref={mapPanelRef}
+            className="map-panel flex min-h-[560px] w-full flex-col overflow-hidden rounded-2xl border border-white/[0.08] bg-[#0e161f]"
+          >
+            <div className="flex flex-col gap-3 border-b border-white/[0.07] px-4 py-3 sm:px-5 xl:flex-row xl:items-center xl:justify-between">
+              <div className="flex items-center">
+                <span className="rounded-lg bg-emerald-900/[0.08] px-3 py-2 text-base font-semibold text-emerald-800">
+                  Heat Map
                 </span>
-                <div>
-                  <h2 className="text-xs font-semibold text-slate-100">Thermal exposure map</h2>
-                  <p className="mt-0.5 text-[10px] text-slate-500">
-                    {selectedWardData.name} Ward · Surface temperature
-                  </p>
-                </div>
               </div>
-              <div className="flex items-center gap-3.5">
-                <MapLegend color="#fb6470" label="Critical · &gt;42°C" />
-                <MapLegend color="#f4ad54" label="Moderate · &gt;38°C" />
+              <div className="flex flex-wrap items-center gap-2">
+                <label className="flex items-center gap-2 rounded-lg border border-white/[0.09] bg-[#111a24] px-2.5">
+                  <Layers3 size={14} className="text-slate-500" />
+                  <select
+                    aria-label="Map layer"
+                    value={mapLayer}
+                    onChange={(event) => {
+                      const layer = event.currentTarget.value;
+                      if (
+                        layer === "all" ||
+                        layer === "risk-zones" ||
+                        layer === "hotspots" ||
+                        layer === "base-map"
+                      ) {
+                        setMapLayer(layer);
+                      }
+                    }}
+                    className="h-9 min-w-28 bg-transparent text-sm text-slate-200 outline-none focus:border-emerald-400/50"
+                  >
+                    <option value="all">Risk zones & hotspots</option>
+                    <option value="risk-zones">Risk zones only</option>
+                    <option value="hotspots">Hotspots only</option>
+                    <option value="base-map">Base map only</option>
+                  </select>
+                </label>
+                <label className="flex items-center gap-2 rounded-lg border border-white/[0.09] bg-[#111a24] px-2.5">
+                  <Clock3 size={14} className="text-slate-500" />
+                  <span className="text-sm text-slate-400">Date</span>
+                  <select
+                    aria-label="Map date"
+                    disabled
+                    title="Date filtering is unavailable because the connected dataset has no dated time series."
+                    className="h-9 bg-transparent text-sm text-slate-400 opacity-70"
+                  >
+                    <option>Latest available</option>
+                  </select>
+                </label>
+                <button
+                  type="button"
+                  aria-label={isMapFullscreen ? "Exit full screen map" : "Full screen map"}
+                  title={isMapFullscreen ? "Exit full screen" : "Full screen"}
+                  onClick={toggleMapFullscreen}
+                  className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/[0.09] text-slate-500 transition hover:bg-white/[0.05] hover:text-slate-200"
+                >
+                  {isMapFullscreen ? <Minimize2 size={15} /> : <Maximize2 size={15} />}
+                </button>
               </div>
             </div>
 
@@ -544,7 +463,7 @@ export default function Page1HeatRiskMap() {
                 zoom={12}
                 zoomControl={false}
                 scrollWheelZoom
-                aria-label="Interactive Pune heat risk map"
+                aria-label={`Interactive ${selectedCity?.name ?? "city"} heat risk map`}
                 className="heat-risk-map"
               >
                 <TileLayer
@@ -554,10 +473,11 @@ export default function Page1HeatRiskMap() {
                     tileerror: () => setMapTilesUnavailable(true),
                   }}
                 />
-                <ZoomControl position="bottomright" />
+                <ZoomControl position="topleft" />
                 <MapViewport target={mapTarget} />
+                <MapSizeHandler resizeKey={isMapFullscreen} />
 
-                {hotspots.map((hotspot) => (
+                {showRiskZones && visibleHotspots.map((hotspot) => (
                   <Circle
                     key={`risk-${hotspot.id}`}
                     center={hotspot.coordinates}
@@ -572,7 +492,7 @@ export default function Page1HeatRiskMap() {
                   />
                 ))}
 
-                {hotspots.map((hotspot) => (
+                {showHotspotMarkers && visibleHotspots.map((hotspot) => (
                   <Marker
                     key={hotspot.id}
                     position={hotspot.coordinates}
@@ -594,21 +514,25 @@ export default function Page1HeatRiskMap() {
 
                 <div className="map-center-label">
                   <span className="map-center-label__dot" />
-                  <span>PUNE</span>
+                  <span>{selectedCity?.name.toUpperCase() ?? "SELECT A CITY"}</span>
                 </div>
               </MapContainer>
 
-              <div className="absolute left-4 top-4 z-[500] flex items-center gap-2 rounded-lg border border-white/[0.09] bg-[#0c131b]/90 px-3 py-2 shadow-lg backdrop-blur">
+              <div className="absolute right-4 top-4 z-[500] flex items-center gap-2 rounded-lg border border-white/[0.09] bg-[#0c131b]/90 px-3 py-2 shadow-lg backdrop-blur">
                 <MapPin size={14} className="text-emerald-400" />
-                <span className="text-[10px] font-medium text-slate-200">
-                  {query || "Pune, Maharashtra"}
+                <span className="text-base font-medium text-slate-200">
+                  {selectedWardData
+                    ? `${selectedWardData.name} (Ward ${selectedWardData.id}), ${selectedCity?.name}`
+                    : selectedCity
+                      ? `${selectedCity.name}, ${selectedCity.region}`
+                      : "Select a city"}
                 </span>
               </div>
 
               {mapTilesUnavailable && (
                 <div
                   role="status"
-                  className="absolute right-4 top-4 z-[500] max-w-[190px] rounded-lg border border-amber-800/15 bg-[#fbfaf6]/95 px-3 py-2 text-[9px] font-medium leading-relaxed text-amber-800 shadow-sm"
+                  className="absolute right-4 top-4 z-[500] max-w-[240px] rounded-lg border border-amber-800/15 bg-[#fbfaf6]/95 px-3 py-2 text-sm font-medium leading-relaxed text-amber-800 shadow-sm"
                 >
                   Basemap unavailable · hotspot risk overlay remains active
                 </div>
@@ -619,223 +543,95 @@ export default function Page1HeatRiskMap() {
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-40" />
                   <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
                 </span>
-                <span className="text-[10px] text-slate-400">
-                  Thermal risk zones <span className="text-slate-200">· 100m</span>
+                <span className="text-sm text-slate-400">
+                  {selectedWardData
+                    ? `No hotspot mapping for Ward ${selectedWardData.id}`
+                    : visibleHotspots.length
+                      ? `${visibleHotspots.length} sample locations · ward mapping unavailable`
+                      : "No hotspot data available"}
                 </span>
+              </div>
+
+              <div className="absolute bottom-4 right-4 z-[500] space-y-2 rounded-lg border border-white/[0.09] bg-[#0c131b]/90 px-3 py-2.5 shadow-lg backdrop-blur">
+                <p className="text-sm font-semibold text-slate-200">Heat risk</p>
+                <MapLegend color="#fb6470" label="Critical" />
+                <MapLegend color="#f4ad54" label="Moderate" />
               </div>
 
               <button
                 type="button"
                 onClick={() => {
-                  setMapTarget(puneCenter);
-                  setQuery("");
+                  handleWardChange(ALL_WARDS);
                 }}
-                aria-label="Reset map to Pune"
-                className="absolute bottom-4 right-[60px] z-[500] flex h-[34px] w-[34px] items-center justify-center rounded-lg border border-white/[0.12] bg-[#0c131b]/90 text-slate-300 shadow-lg backdrop-blur transition hover:border-emerald-400/30 hover:text-emerald-300"
+                aria-label={`Reset map to ${selectedCity?.name ?? "city"} overview`}
+                className="absolute bottom-4 left-[220px] z-[500] flex h-[34px] w-[34px] items-center justify-center rounded-lg border border-white/[0.12] bg-[#0c131b]/90 text-slate-300 shadow-lg backdrop-blur transition hover:border-emerald-400/30 hover:text-emerald-300"
               >
                 <Crosshair size={15} />
               </button>
             </div>
           </div>
 
-          <aside className="flex min-h-[560px] flex-col overflow-hidden rounded-2xl border border-white/[0.08] bg-[#0e161f]">
-            <div className="flex items-center justify-between border-b border-white/[0.07] px-5 py-4">
-              <div>
-                <div className="flex items-center gap-2">
-                  <h2 className="text-sm font-semibold text-slate-100">
-                    Hotspot intelligence
-                  </h2>
-                  <span className="rounded-md border border-white/[0.08] bg-white/[0.04] px-1.5 py-0.5 text-[9px] font-medium text-slate-400">
-                    LIVE
-                  </span>
-                </div>
-                <p className="mt-1 text-[10px] text-slate-500">
-                  Select a map marker to inspect a zone
-                </p>
-              </div>
-              <button
-                type="button"
-                aria-label="Previous hotspot"
-                onClick={() => {
-                  const index = hotspots.findIndex(
-                    (hotspot) => hotspot.id === selectedHotspotId,
-                  );
-                  selectHotspot(
-                    hotspots[(index - 1 + hotspots.length) % hotspots.length],
-                  );
-                }}
-                className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/[0.08] text-slate-400 transition hover:bg-white/[0.05] hover:text-white"
-              >
-                <ChevronLeft size={16} />
-              </button>
-            </div>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <SummaryMetric
+              label="Ward average"
+              value="—"
+              unit=""
+              icon={<Flame size={16} />}
+              accent="rose"
+              change={selectedWardData
+                ? `Temperature data unavailable for Ward ${selectedWardData.id}`
+                : selectedCity
+                  ? selectedCity.id === "pune"
+                    ? "No verified aggregate for all 41 wards"
+                    : "City-wide temperature data unavailable"
+                  : "Select a city to view measurements"}
+            />
+            <SummaryMetric
+              label="Active hotspots"
+              value={
+                selectedWardData || !visibleHotspots.length
+                  ? "—"
+                  : String(visibleHotspots.length).padStart(2, "0")
+              }
+              unit={visibleHotspots.length ? "sample locations" : ""}
+              icon={<Crosshair size={16} />}
+              accent="amber"
+              change={selectedWardData
+                ? "Ward-level hotspot data unavailable"
+                : visibleHotspots.length
+                  ? `${visibleHotspots.filter((hotspot) => hotspot.risk === "Critical").length} critical · ${visibleHotspots.filter((hotspot) => hotspot.risk === "Moderate").length} moderate · illustrative`
+                  : "City-specific hotspot data unavailable"}
+            />
+            <SummaryMetric
+              label="Vegetation cover"
+              value={selectedCity?.id === "pune" && !selectedWardData ? "18.6" : "—"}
+              unit={selectedCity?.id === "pune" && !selectedWardData ? "%" : ""}
+              icon={<Leaf size={16} />}
+              accent="emerald"
+              change={selectedWardData
+                ? `Vegetation data unavailable for Ward ${selectedWardData.id}`
+                : selectedCity?.id === "pune"
+                  ? "Illustrative city estimate · ward data unavailable"
+                  : selectedCity
+                    ? "City-specific vegetation data unavailable"
+                    : "Select a city to view measurements"}
+            />
+          </div>
 
-            <div className="flex flex-1 flex-col p-5">
-              <div className="mb-5 flex items-start justify-between gap-3">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-[19px] font-semibold tracking-tight text-white">
-                      {selectedHotspot.name}
-                    </h3>
-                    <RiskBadge risk={selectedHotspot.risk} />
-                  </div>
-                  <p className="mt-1.5 flex items-center gap-1.5 text-xs text-slate-500">
-                    <MapPin size={13} />
-                    {selectedHotspot.locality}, Pune
-                    <span className="text-slate-700">·</span>
-                    {selectedHotspot.area}
-                  </p>
-                </div>
-                <div className="flex gap-1 pt-0.5">
-                  {hotspots.map((hotspot) => (
-                    <button
-                      key={hotspot.id}
-                      type="button"
-                      aria-label={`Select ${hotspot.name}`}
-                      aria-pressed={hotspot.id === selectedHotspotId}
-                      onClick={() => selectHotspot(hotspot)}
-                      className={`flex h-7 w-7 items-center justify-center rounded-md text-[10px] font-semibold transition ${
-                        hotspot.id === selectedHotspotId
-                          ? "bg-white/[0.12] text-white ring-1 ring-white/15"
-                          : "text-slate-500 hover:bg-white/[0.05] hover:text-slate-200"
-                      }`}
-                    >
-                      {hotspot.id}
-                    </button>
-                  ))}
-                </div>
-              </div>
+          <div className="mx-auto w-full max-w-[360px] text-center">
+            <a
+              href="/page2"
+              className="group flex min-h-[48px] items-center justify-between rounded-xl bg-emerald-400 px-4 text-base font-semibold text-[#07120f] shadow-lg shadow-emerald-950/30 transition hover:bg-emerald-300"
+            >
+              <span>Optimize Ward Budget (₹25L)</span>
+              <ArrowRight
+                size={16}
+                className="transition-transform group-hover:translate-x-1"
+              />
+            </a>
+          </div>
 
-              <div className="mb-4 grid grid-cols-2 gap-3">
-                <div className="rounded-xl border border-rose-400/[0.12] bg-gradient-to-br from-rose-400/[0.09] to-transparent p-3.5">
-                  <div className="mb-3 flex items-center justify-between">
-                    <span className="text-[10px] font-medium text-slate-400">
-                      Surface temperature
-                    </span>
-                    <Flame size={14} className="text-rose-300" />
-                  </div>
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-[27px] font-semibold leading-none tracking-tight text-rose-200">
-                      {selectedHotspot.surfaceTemp.toFixed(1)}
-                    </span>
-                    <span className="text-xs text-rose-200/70">°C</span>
-                  </div>
-                  <div className="mt-2 flex items-center gap-1 text-[9px] text-rose-300/80">
-                    <ArrowUpRight size={12} />
-                    {(selectedHotspot.surfaceTemp - 38.3).toFixed(1)}° above city average
-                  </div>
-                </div>
-                <div className="rounded-xl border border-amber-400/[0.12] bg-gradient-to-br from-amber-400/[0.07] to-transparent p-3.5">
-                  <div className="mb-3 flex items-center justify-between">
-                    <span className="text-[10px] font-medium text-slate-400">
-                      NDVI vegetation index
-                    </span>
-                    <Leaf size={14} className="text-amber-300" />
-                  </div>
-                  <div className="flex items-baseline gap-1.5">
-                    <span className="text-[27px] font-semibold leading-none tracking-tight text-amber-200">
-                      {selectedHotspot.ndvi.toFixed(2)}
-                    </span>
-                    <span className="rounded px-1.5 py-0.5 text-[9px] font-semibold text-amber-300/90">
-                      Critical
-                    </span>
-                  </div>
-                  <div className="mt-2 text-[9px] text-slate-500">
-                    Low canopy · city avg. 0.34
-                  </div>
-                </div>
-              </div>
-
-              <div className="mb-4 rounded-xl border border-white/[0.07] bg-white/[0.025] p-3.5">
-                <div className="mb-2.5 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <ShieldAlert size={14} className="text-amber-300" />
-                    <span className="text-[10px] font-medium text-slate-300">
-                      Vulnerability score <span className="text-slate-500">V<sub>h</sub></span>
-                    </span>
-                  </div>
-                  <span className="text-[9px] font-medium text-amber-300">HIGH EXPOSURE</span>
-                </div>
-                <div className="flex items-end justify-between gap-4">
-                  <div>
-                    <span className="text-[23px] font-semibold leading-none text-slate-100">
-                      {selectedHotspot.vulnerabilityScore.toFixed(2)}
-                    </span>
-                    <span className="ml-1 text-xs text-slate-500">/ 1.0</span>
-                  </div>
-                  <span className="max-w-[180px] text-right text-[9px] leading-relaxed text-slate-500">
-                    Based on elderly & informal settlement density
-                  </span>
-                </div>
-                <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/[0.07]">
-                  <div
-                    className="h-full rounded-full bg-gradient-to-r from-amber-400 to-rose-400"
-                    style={{ width: `${selectedHotspot.vulnerabilityScore * 100}%` }}
-                  />
-                </div>
-                <div className="mt-2 flex items-center justify-between text-[9px] text-slate-500">
-                  <span>Low risk</span>
-                  <span className="flex items-center gap-1 text-slate-400">
-                    <UsersRound size={11} />
-                    {selectedHotspot.vulnerablePopulation} vulnerable residents
-                  </span>
-                  <span>High risk</span>
-                </div>
-              </div>
-
-              <div className="mb-5">
-                <div className="mb-2.5 flex items-center justify-between">
-                  <h4 className="text-[10px] font-semibold uppercase tracking-[0.13em] text-slate-400">
-                    Feasible interventions
-                  </h4>
-                  <span className="text-[9px] text-slate-600">EST. COOLING IMPACT</span>
-                </div>
-                <div className="space-y-1.5">
-                  {selectedHotspot.interventions.map((intervention) => (
-                    <div
-                      key={intervention.name}
-                      className="flex items-center justify-between rounded-lg border border-white/[0.055] bg-white/[0.02] px-3 py-2.5"
-                    >
-                      <div className="flex items-center gap-2.5">
-                        <span className="flex h-7 w-7 items-center justify-center rounded-md bg-emerald-400/[0.09] text-emerald-300">
-                          <InterventionIcon type={intervention.icon} />
-                        </span>
-                        <span className="text-[10px] font-medium text-slate-300">
-                          {intervention.name}
-                        </span>
-                      </div>
-                      <span className="text-[10px] font-semibold text-emerald-300">
-                        {intervention.impact}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <a
-                href="/page2"
-                className="group mt-auto flex min-h-[48px] items-center justify-between rounded-xl bg-emerald-400 px-4 text-xs font-semibold text-[#07120f] shadow-lg shadow-emerald-950/30 transition hover:bg-emerald-300"
-              >
-                <span>Optimize Ward Budget (₹25L)</span>
-                <ArrowRight
-                  size={16}
-                  className="transition-transform group-hover:translate-x-1"
-                />
-              </a>
-              <p className="mt-2 text-center text-[9px] text-slate-600">
-                Generate an optimized intervention plan for {selectedWardData.name} Ward
-              </p>
-            </div>
-          </aside>
         </section>
-
-        <footer className="mt-4 flex flex-wrap items-center justify-between gap-2 px-1 text-[9px] text-slate-600">
-          <span>Source: PMC Climate Cell · Landsat 9 thermal imagery · Census 2011</span>
-          <span className="flex items-center gap-1.5">
-            <ArrowDownRight size={11} />
-            Indicative analysis · 100m resolution
-          </span>
-        </footer>
       </div>
 
       <style>{`
@@ -848,10 +644,16 @@ export default function Page1HeatRiskMap() {
           background: #17232a;
           font-family: inherit;
         }
+        .map-panel:fullscreen {
+          width: 100vw;
+          min-height: 100vh;
+          border-radius: 0;
+          background: var(--warm-panel);
+        }
         .heat-risk-map .leaflet-control-attribution {
           background: rgba(10, 16, 23, 0.72);
           color: #64748b;
-          font-size: 9px;
+          font-size: 11px;
         }
         .heat-risk-map .leaflet-tile-pane {
           filter: invert(1) hue-rotate(180deg) brightness(0.78) saturate(0.72);
@@ -936,7 +738,7 @@ export default function Page1HeatRiskMap() {
         }
         .heat-risk-map .leaflet-popup-content {
           margin: 10px 13px;
-          font-size: 11px;
+          font-size: 14px;
           line-height: 1.6;
         }
         .heat-risk-map .leaflet-popup-close-button {
@@ -974,27 +776,27 @@ function SummaryMetric({
   };
 
   return (
-    <div className="rounded-xl border border-white/[0.07] bg-[#0e161f] px-4 py-3.5 transition hover:border-white/[0.12]">
+    <div className="h-full min-h-[112px] rounded-xl border border-white/[0.07] bg-[#0e161f] px-4 py-3.5 transition hover:border-white/[0.12]">
       <div className="flex items-center justify-between">
-        <span className="text-[10px] font-medium text-slate-500">{label}</span>
+        <span className="text-base font-medium text-slate-500">{label}</span>
         <span className={`flex h-7 w-7 items-center justify-center rounded-lg ${accentStyles[accent]}`}>
           {icon}
         </span>
       </div>
       <div className="mt-1.5 flex items-baseline gap-1.5">
-        <span className="text-[21px] font-semibold tracking-tight text-slate-100">
+        <span className="text-xl font-semibold tracking-tight text-slate-100">
           {value}
         </span>
-        <span className="text-[10px] text-slate-500">{unit}</span>
+        <span className="text-base text-slate-500">{unit}</span>
       </div>
-      <p className={`mt-1 text-[9px] ${detailStyles[accent]}`}>{change}</p>
+      <p className={`mt-1 text-sm leading-snug ${detailStyles[accent]}`}>{change}</p>
     </div>
   );
 }
 
 function MapLegend({ color, label }: { color: string; label: string }) {
   return (
-    <span className="flex items-center gap-1.5 text-[9px] text-slate-400">
+    <span className="flex items-center gap-1.5 text-sm text-slate-400">
       <span
         className="h-2 w-2 rounded-full"
         style={{
@@ -1003,27 +805,6 @@ function MapLegend({ color, label }: { color: string; label: string }) {
         }}
       />
       {label}
-    </span>
-  );
-}
-
-function RiskBadge({ risk }: { risk: Hotspot["risk"] }) {
-  const critical = risk === "Critical";
-
-  return (
-    <span
-      className={`inline-flex items-center gap-1 rounded-md border px-1.5 py-1 text-[9px] font-semibold uppercase tracking-wide ${
-        critical
-          ? "border-rose-400/20 bg-rose-400/[0.09] text-rose-300"
-          : "border-amber-400/20 bg-amber-400/[0.09] text-amber-300"
-      }`}
-    >
-      <span
-        className={`h-1.5 w-1.5 rounded-full ${
-          critical ? "bg-rose-400" : "bg-amber-400"
-        }`}
-      />
-      {risk}
     </span>
   );
 }
