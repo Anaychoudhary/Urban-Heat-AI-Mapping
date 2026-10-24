@@ -326,7 +326,7 @@ export default function Page2BudgetOptimizer() {
         <div className="mx-auto flex min-h-[70px] max-w-[1440px] items-center justify-between gap-4 px-5 py-3 sm:px-8">
           <div className="flex min-w-0 items-center gap-3">
             <a
-              href="/"
+              href="/page1"
               aria-label="Back to heat risk map"
               className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-white/[0.08] text-slate-500 transition hover:bg-white/[0.05] hover:text-slate-200"
             >
@@ -704,7 +704,7 @@ export default function Page2BudgetOptimizer() {
                 <ArrowRight size={14} className="transition-transform group-hover:translate-x-0.5" />
               </button>
             </div>
-            <div className="flex items-center gap-2 rounded-xl border border-amber-800/10 bg-amber-900/[0.035] p-3 sm:basis-full sm:justify-between sm:px-4">
+            <div className="flex flex-col items-stretch gap-2 rounded-xl border border-amber-800/10 bg-amber-900/[0.035] p-3 sm:basis-full sm:flex-row sm:items-center sm:justify-between sm:px-4">
               <span className="flex items-center gap-2 text-base text-slate-500">
                 <MapPin size={14} className="shrink-0 text-amber-800" />
                 <span className="font-semibold text-slate-200">Next: field verification</span>

@@ -11,7 +11,9 @@ npm run dev
 ```
 
 Open the local URL printed by Vite. The flow starts at `/` and continues through
-`/page2`, `/page3`, `/page4`, and `/page5`.
+`/page2`, `/page3`, `/page4`, and `/page5`. The home route opens the role
+selection page first; commissioners continue to `/page1`, and field engineers
+continue to `/page3`. The frontend layouts adapt for mobile-sized screens.
 
 Scenario approval and model recalibration are front-end demonstrations. The
 scenario comparison's PDF action opens the browser print dialog, where the

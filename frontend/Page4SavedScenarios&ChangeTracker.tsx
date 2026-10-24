@@ -90,7 +90,7 @@ export default function Page4SavedScenariosChangeTracker() {
           />
         </section>
 
-        <section aria-label="Scenario summary comparison" className="grid gap-3 sm:grid-cols-2">
+        <section aria-label="Scenario summary comparison" className="grid min-w-0 gap-3 sm:grid-cols-2">
           <ScenarioSummary
             label="Scenario A"
             title={scenarioA === "baseline" ? "25L Initial Ward Allocation" : "Post-Field Restriction · Hotspot A"}
@@ -278,7 +278,7 @@ function ScenarioSummary({
 }) {
   const active = scenarioKind === "field";
   return (
-    <article className={`rounded-2xl border p-4 sm:p-5 ${active ? "border-emerald-800/15 bg-[#eef1e9]" : "border-white/[0.08] bg-[#0e161f]"}`}>
+    <article className={`min-w-0 rounded-2xl border p-4 sm:p-5 ${active ? "border-emerald-800/15 bg-[#eef1e9]" : "border-white/[0.08] bg-[#0e161f]"}`}>
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
           <p className={`text-sm font-semibold uppercase tracking-[0.13em] ${active ? "text-emerald-800" : "text-slate-500"}`}>{label}</p>

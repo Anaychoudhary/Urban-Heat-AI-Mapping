@@ -310,7 +310,7 @@ export default function Page1HeatRiskMap() {
 
       <header className="relative z-20 border-b border-white/[0.07] bg-[#0c131b]/90">
         <div className="mx-auto flex max-w-[1600px] flex-wrap items-center justify-between gap-x-8 gap-y-4 px-5 py-3 sm:px-8">
-          <a href="/" className="flex min-w-0 items-center gap-3">
+          <a href="/page1" className="flex min-w-0 items-center gap-3">
             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-rose-400/20 bg-rose-400/[0.09] text-rose-300">
               <Flame size={21} strokeWidth={1.8} />
             </span>
@@ -400,7 +400,7 @@ export default function Page1HeatRiskMap() {
         <section className="flex flex-col gap-4">
           <div
             ref={mapPanelRef}
-            className="map-panel flex min-h-[560px] w-full flex-col overflow-hidden rounded-2xl border border-white/[0.08] bg-[#0e161f]"
+            className="map-panel flex min-h-[420px] w-full flex-col overflow-hidden rounded-2xl border border-white/[0.08] bg-[#0e161f] sm:min-h-[560px]"
           >
             <div className="flex flex-col gap-3 border-b border-white/[0.07] px-4 py-3 sm:px-5 xl:flex-row xl:items-center xl:justify-between">
               <div className="flex items-center">
@@ -457,7 +457,7 @@ export default function Page1HeatRiskMap() {
               </div>
             </div>
 
-            <div className="relative min-h-[440px] flex-1 bg-[#17232a] sm:min-h-[500px]">
+            <div className="relative min-h-[320px] flex-1 bg-[#17232a] sm:min-h-[500px]">
               <MapContainer
                 center={puneCenter}
                 zoom={12}

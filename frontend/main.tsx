@@ -32,6 +32,8 @@ function renderCurrentPage() {
           <LoginPage />
         </Suspense>
       );
+    case "/page1":
+      return <Page1HeatRiskMap />;
     case "/page5":
       return (
         <Suspense fallback={<LoadingPage label="Loading outcome tracking…" />}>
@@ -59,7 +61,11 @@ function renderCurrentPage() {
         </Suspense>
       );
     default:
-      return <Page1HeatRiskMap />;
+      return (
+        <Suspense fallback={<LoadingPage label="Loading role selection…" />}>
+          <LoginPage />
+        </Suspense>
+      );
   }
 }
 

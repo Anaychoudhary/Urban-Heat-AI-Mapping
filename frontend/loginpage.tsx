@@ -27,7 +27,7 @@ export default function LoginPage() {
         <div className="space-y-5">
           <button
             type="button"
-            onClick={() => loginAs("COMMISSIONER", "/")}
+            onClick={() => loginAs("COMMISSIONER", "/page1")}
             className="group flex min-h-28 w-full items-center gap-5 rounded-xl border border-[#deded3] bg-[#fbfaf6] px-5 py-6 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-[#819572] hover:shadow-lg hover:shadow-[#29352f]/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#819572] focus-visible:ring-offset-4 focus-visible:ring-offset-[#f4f2eb] sm:px-7"
           >
             <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-[#eeece3] text-[#657b58] transition group-hover:bg-[#819572] group-hover:text-white">
