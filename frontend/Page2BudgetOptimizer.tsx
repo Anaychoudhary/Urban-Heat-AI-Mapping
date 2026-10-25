@@ -1,5 +1,10 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { CSSProperties, ReactNode } from "react";
+import {
+  getScenarioHistory,
+  runOptimization as runBackendOptimization,
+} from "./apiService";
+import type { Scenario } from "./apiService";
 import {
   ArrowLeft,
   ArrowRight,
@@ -243,6 +248,7 @@ function StrategySlider({
 }
 
 export default function Page2BudgetOptimizer() {
+  const wardId = 8;
   const [budget, setBudget] = useState(2500000);
   const [budgetInput, setBudgetInput] = useState("25,00,000");
   const [isLakhs, setIsLakhs] = useState(false);
@@ -254,6 +260,11 @@ export default function Page2BudgetOptimizer() {
     () => new URLSearchParams(window.location.search).get("fieldConstraints") === "1",
   );
   const [saved, setSaved] = useState(false);
+  const [backendScenario, setBackendScenario] = useState<Scenario | null>(null);
+  const [apiError, setApiError] = useState<string | null>(null);
+  const [scenarioHistory, setScenarioHistory] = useState<Scenario[]>([]);
+  const [historyError, setHistoryError] = useState<string | null>(null);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(true);
   const scenarioSearch = new URLSearchParams(window.location.search);
   const reportedHotspot = scenarioSearch.get("hotspot");
   const reportedCategory = scenarioSearch.get("category");
@@ -282,6 +293,27 @@ export default function Page2BudgetOptimizer() {
     0,
   );
 
+  useEffect(() => {
+    const controller = new AbortController();
+    setIsLoadingHistory(true);
+    setHistoryError(null);
+
+    getScenarioHistory(wardId, controller.signal)
+      .then(setScenarioHistory)
+      .catch((error: unknown) => {
+        if (!controller.signal.aborted) {
+          setHistoryError(
+            error instanceof Error ? error.message : "Could not load scenario history.",
+          );
+        }
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setIsLoadingHistory(false);
+      });
+
+    return () => controller.abort();
+  }, [wardId]);
+
   const changeBudget = (value: string) => {
     setBudgetInput(value);
     setBudget(parseBudget(value, isLakhs));
@@ -294,12 +326,35 @@ export default function Page2BudgetOptimizer() {
     setBudgetInput(formatBudgetInput(budget, nextFormatIsLakhs));
   };
 
-  const runOptimization = () => {
+  const runOptimization = async () => {
     setIsRunning(true);
-    window.setTimeout(() => {
+    setIsOptimized(false);
+    setApiError(null);
+    setBackendScenario(null);
+    try {
+      const scenario = await runBackendOptimization({
+        wardId,
+        budget,
+        scenarioName: "Aundh Ward Optimization",
+      });
+      setBackendScenario(scenario);
       setIsOptimized(true);
+      try {
+        const history = await getScenarioHistory(wardId);
+        setScenarioHistory(history);
+        setHistoryError(null);
+      } catch (error) {
+        setHistoryError(
+          error instanceof Error ? error.message : "Could not refresh scenario history.",
+        );
+      }
+    } catch (error) {
+      setApiError(
+        error instanceof Error ? error.message : "Could not run the optimization.",
+      );
+    } finally {
       setIsRunning(false);
-    }, 650);
+    }
   };
 
   const saveBaseline = () => {
@@ -326,7 +381,7 @@ export default function Page2BudgetOptimizer() {
         <div className="mx-auto flex min-h-[70px] max-w-[1440px] items-center justify-between gap-4 px-5 py-3 sm:px-8">
           <div className="flex min-w-0 items-center gap-3">
             <a
-              href="/"
+              href="/page1"
               aria-label="Back to heat risk map"
               className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-white/[0.08] text-slate-500 transition hover:bg-white/[0.05] hover:text-slate-200"
             >
@@ -457,6 +512,54 @@ export default function Page2BudgetOptimizer() {
               <ArrowRight size={14} className="transition-transform group-hover:translate-x-0.5" />
             </button>
           </div>
+        </section>
+
+        {apiError && (
+          <p role="alert" className="mb-4 rounded-xl border border-rose-700/20 bg-rose-100/60 px-4 py-3 text-base text-rose-900">
+            {apiError}
+          </p>
+        )}
+
+        {backendScenario && (
+          <section aria-live="polite" className="mb-4 rounded-xl border border-emerald-800/15 bg-emerald-900/[0.06] p-4">
+            <h2 className="text-base font-semibold text-slate-100">
+              Backend optimization result
+            </h2>
+            <div className="mt-2 grid gap-2 text-base text-slate-300 sm:grid-cols-3">
+              <p>Allocated cost: {formatCurrency(backendScenario.totalAllocatedCost)}</p>
+              <p>Predicted cooling: {backendScenario.predictedCoolingBenefit.toFixed(1)}°C</p>
+              <p>Estimated CO₂ impact: {backendScenario.estimatedCo2Impact.toLocaleString("en-IN")}</p>
+            </div>
+            <details className="mt-3 text-base text-slate-300">
+              <summary className="cursor-pointer font-medium">View backend allocation data</summary>
+              <pre className="mt-2 max-h-64 overflow-auto rounded-lg bg-black/20 p-3 text-sm">
+                {typeof backendScenario.allocationsJson === "string"
+                  ? backendScenario.allocationsJson
+                  : JSON.stringify(backendScenario.allocationsJson, null, 2)}
+              </pre>
+            </details>
+          </section>
+        )}
+
+        <section aria-label="Scenario history" className="mb-4 rounded-xl border border-white/[0.08] bg-[#0e161f] p-4">
+          <h2 className="text-base font-semibold text-slate-100">Saved scenario history</h2>
+          {isLoadingHistory ? (
+            <p className="mt-2 text-base text-slate-500">Loading saved scenarios…</p>
+          ) : historyError ? (
+            <p role="alert" className="mt-2 text-base text-rose-800">{historyError}</p>
+          ) : scenarioHistory.length ? (
+            <ul className="mt-2 space-y-1 text-base text-slate-300">
+              {scenarioHistory.slice(0, 3).map((scenario, index) => (
+                <li key={scenario.id ?? `${scenario.scenarioName ?? "scenario"}-${index}`}>
+                  {scenario.scenarioName ?? `Scenario ${scenario.id ?? index + 1}`} ·{" "}
+                  {formatCurrency(scenario.totalAllocatedCost)} ·{" "}
+                  {scenario.predictedCoolingBenefit.toFixed(1)}°C cooling
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="mt-2 text-base text-slate-500">No saved scenarios for this ward yet.</p>
+          )}
         </section>
 
         {constraintsApplied && (
@@ -704,13 +807,13 @@ export default function Page2BudgetOptimizer() {
                 <ArrowRight size={14} className="transition-transform group-hover:translate-x-0.5" />
               </button>
             </div>
-            <div className="flex items-center gap-2 rounded-xl border border-amber-800/10 bg-amber-900/[0.035] p-3 sm:basis-full sm:justify-between sm:px-4">
+            <div className="flex flex-col items-stretch gap-2 rounded-xl border border-amber-800/10 bg-amber-900/[0.035] p-3 sm:basis-full sm:flex-row sm:items-center sm:justify-between sm:px-4">
               <span className="flex items-center gap-2 text-base text-slate-500">
                 <MapPin size={14} className="shrink-0 text-amber-800" />
                 <span className="font-semibold text-slate-200">Next: field verification</span>
               </span>
               <a
-                href="/page3"
+                href={`/page3?budget=${encodeURIComponent(budget)}`}
                 className="group flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-lg border border-amber-800/15 bg-[#fbfaf6] px-3 text-base font-semibold text-amber-800 transition hover:bg-amber-900/[0.06] sm:px-4"
               >
                 Open field report

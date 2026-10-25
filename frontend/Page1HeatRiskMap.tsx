@@ -27,6 +27,8 @@ import {
 } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import { getHotspots } from "./apiService";
+import type { Hotspot as ApiHotspot } from "./apiService";
 
 export interface Ward {
   id: string;
@@ -45,12 +47,12 @@ export interface Hotspot {
   locality: string;
   coordinates: [number, number];
   surfaceTemp: number;
-  ndvi: number;
+  ndvi?: number;
   vulnerabilityScore: number;
-  vulnerablePopulation: string;
-  area: string;
+  vulnerablePopulation?: string;
+  area?: string;
   risk: "Critical" | "Moderate";
-  interventions: Intervention[];
+  interventions?: Intervention[];
 }
 
 interface City {
@@ -242,21 +244,75 @@ export default function Page1HeatRiskMap() {
   const [mapTarget, setMapTarget] = useState<[number, number]>(puneCenter);
   const mapPanelRef = useRef<HTMLDivElement>(null);
   const [mapTilesUnavailable, setMapTilesUnavailable] = useState(false);
+  const [wardHotspots, setWardHotspots] = useState<ApiHotspot[]>([]);
+  const [isLoadingWardHotspots, setIsLoadingWardHotspots] = useState(false);
+  const [wardHotspotsError, setWardHotspotsError] = useState<string | null>(null);
 
   const selectedCity = cities.find((city) => city.id === selectedCityId);
   const availableWards = selectedCity?.wards ?? [];
   const selectedWardData = availableWards.find(
     (ward) => ward.id === selectedWardId,
   );
-  const visibleHotspots = useMemo(
+  const wardMapHotspots = useMemo<Hotspot[]>(
     () =>
-      selectedCityId === "pune" && selectedWardId === ALL_WARDS
-        ? hotspots
-        : [],
-    [selectedCityId, selectedWardId],
+      wardHotspots.map((hotspot) => {
+        const vulnerability =
+          hotspot.vulnerabilityScore > 1
+            ? hotspot.vulnerabilityScore / 10
+            : hotspot.vulnerabilityScore;
+        return {
+          id: String(hotspot.id),
+          name: hotspot.locationName,
+          locality: hotspot.locationName,
+          coordinates: [hotspot.latitude, hotspot.longitude],
+          surfaceTemp: hotspot.landSurfaceTemp,
+          vulnerabilityScore: vulnerability,
+          risk: vulnerability >= 0.75 ? "Critical" : "Moderate",
+        };
+      }),
+    [wardHotspots],
   );
+  const visibleHotspots =
+    selectedCityId === "pune" && selectedWardData
+      ? wardMapHotspots
+      : selectedCityId === "pune" && selectedWardId === ALL_WARDS
+        ? hotspots
+        : [];
   const showRiskZones = mapLayer === "all" || mapLayer === "risk-zones";
   const showHotspotMarkers = mapLayer === "all" || mapLayer === "hotspots";
+
+  useEffect(() => {
+    if (!selectedWardData || selectedCityId !== "pune") {
+      setWardHotspots([]);
+      setWardHotspotsError(null);
+      setIsLoadingWardHotspots(false);
+      return;
+    }
+
+    const controller = new AbortController();
+    setWardHotspots([]);
+    setIsLoadingWardHotspots(true);
+    setWardHotspotsError(null);
+
+    getHotspots(Number(selectedWardData.id), controller.signal)
+      .then((items) => {
+        setWardHotspots(items);
+        setSelectedHotspotId(items[0] ? String(items[0].id) : "");
+        if (items[0]) setMapTarget([items[0].latitude, items[0].longitude]);
+      })
+      .catch((error: unknown) => {
+        if (!controller.signal.aborted) {
+          setWardHotspotsError(
+            error instanceof Error ? error.message : "Could not load ward hotspots.",
+          );
+        }
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setIsLoadingWardHotspots(false);
+      });
+
+    return () => controller.abort();
+  }, [selectedCityId, selectedWardData]);
 
   useEffect(() => {
     const updateFullscreenState = () => {
@@ -310,7 +366,7 @@ export default function Page1HeatRiskMap() {
 
       <header className="relative z-20 border-b border-white/[0.07] bg-[#0c131b]/90">
         <div className="mx-auto flex max-w-[1600px] flex-wrap items-center justify-between gap-x-8 gap-y-4 px-5 py-3 sm:px-8">
-          <a href="/" className="flex min-w-0 items-center gap-3">
+          <a href="/page1" className="flex min-w-0 items-center gap-3">
             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-rose-400/20 bg-rose-400/[0.09] text-rose-300">
               <Flame size={21} strokeWidth={1.8} />
             </span>
@@ -400,7 +456,7 @@ export default function Page1HeatRiskMap() {
         <section className="flex flex-col gap-4">
           <div
             ref={mapPanelRef}
-            className="map-panel flex min-h-[560px] w-full flex-col overflow-hidden rounded-2xl border border-white/[0.08] bg-[#0e161f]"
+            className="map-panel flex min-h-[420px] w-full flex-col overflow-hidden rounded-2xl border border-white/[0.08] bg-[#0e161f] sm:min-h-[560px]"
           >
             <div className="flex flex-col gap-3 border-b border-white/[0.07] px-4 py-3 sm:px-5 xl:flex-row xl:items-center xl:justify-between">
               <div className="flex items-center">
@@ -457,7 +513,7 @@ export default function Page1HeatRiskMap() {
               </div>
             </div>
 
-            <div className="relative min-h-[440px] flex-1 bg-[#17232a] sm:min-h-[500px]">
+            <div className="relative min-h-[320px] flex-1 bg-[#17232a] sm:min-h-[500px]">
               <MapContainer
                 center={puneCenter}
                 zoom={12}
@@ -545,12 +601,26 @@ export default function Page1HeatRiskMap() {
                 </span>
                 <span className="text-sm text-slate-400">
                   {selectedWardData
-                    ? `No hotspot mapping for Ward ${selectedWardData.id}`
+                    ? isLoadingWardHotspots
+                      ? `Loading hotspots for Ward ${selectedWardData.id}…`
+                      : wardHotspotsError
+                        ? `Could not load hotspots for Ward ${selectedWardData.id}`
+                        : visibleHotspots.length
+                          ? `${visibleHotspots.length} mapped hotspot${visibleHotspots.length === 1 ? "" : "s"}`
+                          : `No hotspots found for Ward ${selectedWardData.id}`
                     : visibleHotspots.length
                       ? `${visibleHotspots.length} sample locations · ward mapping unavailable`
                       : "No hotspot data available"}
                 </span>
               </div>
+              {selectedWardData && wardHotspotsError && (
+                <div
+                  role="alert"
+                  className="absolute bottom-16 left-4 z-[500] max-w-[min(420px,calc(100%-2rem))] rounded-lg border border-rose-700/20 bg-rose-100/95 px-3 py-2 text-sm font-medium leading-relaxed text-rose-900 shadow-sm"
+                >
+                  {wardHotspotsError}
+                </div>
+              )}
 
               <div className="absolute bottom-4 right-4 z-[500] space-y-2 rounded-lg border border-white/[0.09] bg-[#0c131b]/90 px-3 py-2.5 shadow-lg backdrop-blur">
                 <p className="text-sm font-semibold text-slate-200">Heat risk</p>
@@ -589,15 +659,21 @@ export default function Page1HeatRiskMap() {
             <SummaryMetric
               label="Active hotspots"
               value={
-                selectedWardData || !visibleHotspots.length
+                selectedWardData && (isLoadingWardHotspots || wardHotspotsError || !visibleHotspots.length) || !visibleHotspots.length
                   ? "—"
                   : String(visibleHotspots.length).padStart(2, "0")
               }
-              unit={visibleHotspots.length ? "sample locations" : ""}
+              unit={visibleHotspots.length ? selectedWardData ? "mapped locations" : "sample locations" : ""}
               icon={<Crosshair size={16} />}
               accent="amber"
               change={selectedWardData
-                ? "Ward-level hotspot data unavailable"
+                ? isLoadingWardHotspots
+                  ? "Loading ward hotspots"
+                  : wardHotspotsError
+                    ? "Ward hotspot request failed"
+                    : visibleHotspots.length
+                      ? `${visibleHotspots.filter((hotspot) => hotspot.risk === "Critical").length} critical · ${visibleHotspots.filter((hotspot) => hotspot.risk === "Moderate").length} moderate`
+                      : "No hotspot records for this ward"
                 : visibleHotspots.length
                   ? `${visibleHotspots.filter((hotspot) => hotspot.risk === "Critical").length} critical · ${visibleHotspots.filter((hotspot) => hotspot.risk === "Moderate").length} moderate · illustrative`
                   : "City-specific hotspot data unavailable"}

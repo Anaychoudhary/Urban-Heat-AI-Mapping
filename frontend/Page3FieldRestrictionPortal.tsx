@@ -17,13 +17,11 @@ import {
   X,
   Zap,
 } from "lucide-react";
+import { getHotspots, reportFieldConstraint } from "./apiService";
+import type { Hotspot, Scenario } from "./apiService";
 
-const hotspotOptions = [
-  "Hotspot A - Baner Road Junction",
-  "Hotspot B - Hadapsar Market",
-  "Hotspot C - Kothrud Depot",
-  "Hotspot D - Aundh Gaon",
-];
+const WARD_ID = 8;
+const DEFAULT_CURRENT_BUDGET = 2500000;
 
 const constraintCategories = [
   "Overhead Power Lines",
@@ -40,12 +38,25 @@ const restrictionOutcomes: Record<string, string> = {
 };
 
 export default function Page3FieldRestrictionPortal() {
-  const [hotspot, setHotspot] = useState(hotspotOptions[0]);
+  const [currentBudget] = useState(() => {
+    const requestedBudget = Number(
+      new URLSearchParams(window.location.search).get("budget"),
+    );
+    return Number.isFinite(requestedBudget) && requestedBudget > 0
+      ? requestedBudget
+      : DEFAULT_CURRENT_BUDGET;
+  });
+  const [hotspots, setHotspots] = useState<Hotspot[]>([]);
+  const [selectedHotspotId, setSelectedHotspotId] = useState<number | "">("");
+  const [isLoadingHotspots, setIsLoadingHotspots] = useState(true);
+  const [hotspotsError, setHotspotsError] = useState<string | null>(null);
+  const [hotspotRequestKey, setHotspotRequestKey] = useState(0);
   const [category, setCategory] = useState(constraintCategories[0]);
   const [notes, setNotes] = useState(
     "Overhead 11kV lines detected. Tall canopy trees restricted.",
   );
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
+  const [hostedPhotoUrl, setHostedPhotoUrl] = useState("");
   const [photoName, setPhotoName] = useState<string | null>(null);
   const [photoError, setPhotoError] = useState<string | null>(null);
   const [coordinates, setCoordinates] = useState<string | null>(null);
@@ -53,8 +64,35 @@ export default function Page3FieldRestrictionPortal() {
   const [isLocating, setIsLocating] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [submittedScenario, setSubmittedScenario] = useState<Scenario | null>(null);
   const uploadInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    setIsLoadingHotspots(true);
+    setHotspotsError(null);
+
+    getHotspots(WARD_ID, controller.signal)
+      .then((items) => {
+        setHotspots(items);
+        setSelectedHotspotId(items[0]?.id ?? "");
+      })
+      .catch((error: unknown) => {
+        if (!controller.signal.aborted) {
+          setHotspotsError(
+            error instanceof Error ? error.message : "Could not load hotspots.",
+          );
+        }
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setIsLoadingHotspots(false);
+      });
+
+    return () => controller.abort();
+  }, [hotspotRequestKey]);
 
   useEffect(
     () => () => {
@@ -135,10 +173,32 @@ export default function Page3FieldRestrictionPortal() {
     setPhoto(event.dataTransfer.files[0]);
   };
 
-  const submitRestriction = (event: FormEvent<HTMLFormElement>) => {
+  const submitRestriction = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setSubmitted(true);
+    if (selectedHotspotId === "") return;
+
+    setIsSubmitting(true);
+    setSubmitError(null);
+    setSubmitted(false);
+    try {
+      const scenario = await reportFieldConstraint({
+        hotspotId: selectedHotspotId,
+        category,
+        notes,
+        photoUrl: hostedPhotoUrl.trim() || undefined,
+        currentBudget,
+      });
+      setSubmittedScenario(scenario);
+      setSubmitted(true);
+    } catch (error) {
+      setSubmitError(
+        error instanceof Error ? error.message : "Could not submit the field report.",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
+  const selectedHotspot = hotspots.find((item) => item.id === selectedHotspotId);
 
   return (
     <main className="theme-warm min-h-screen bg-[#0a1017] pb-10 text-slate-100">
@@ -169,6 +229,9 @@ export default function Page3FieldRestrictionPortal() {
           <h1 className="text-[22px] font-semibold tracking-tight text-slate-100 sm:text-[28px]">
             Field Restriction Report
           </h1>
+          <p className="mt-1 text-base text-slate-500">
+            Optimization budget: ₹{currentBudget.toLocaleString("en-IN")}
+          </p>
         </div>
 
         <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_290px] lg:gap-5">
@@ -198,15 +261,18 @@ export default function Page3FieldRestrictionPortal() {
                     className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-emerald-800"
                   />
                   <select
-                    value={hotspot}
+                    value={selectedHotspotId}
                     onChange={(event) => {
-                      setHotspot(event.target.value);
+                      setSelectedHotspotId(Number(event.target.value));
                       setSubmitted(false);
                     }}
+                    disabled={isLoadingHotspots || hotspots.length === 0}
                     className="h-11 w-full appearance-none rounded-lg border border-white/[0.1] bg-white/[0.025] pl-9 pr-9 text-base text-slate-200 outline-none transition focus:border-emerald-800/40"
                   >
-                    {hotspotOptions.map((option) => (
-                      <option key={option}>{option}</option>
+                    {hotspots.map((item) => (
+                      <option key={item.id} value={item.id}>
+                        {item.locationName}
+                      </option>
                     ))}
                   </select>
                   <ChevronDown
@@ -214,6 +280,21 @@ export default function Page3FieldRestrictionPortal() {
                     className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-500"
                   />
                 </span>
+                {isLoadingHotspots && (
+                  <span className="mt-1 block text-sm text-slate-500">Loading hotspots…</span>
+                )}
+                {hotspotsError && (
+                  <span role="alert" className="mt-1 block text-sm text-rose-800">
+                    {hotspotsError}{" "}
+                    <button
+                      type="button"
+                      className="font-semibold underline"
+                      onClick={() => setHotspotRequestKey((key) => key + 1)}
+                    >
+                      Retry
+                    </button>
+                  </span>
+                )}
               </label>
 
               <label className="block">
@@ -373,13 +454,41 @@ export default function Page3FieldRestrictionPortal() {
               />
             </label>
 
+            {submitError && (
+              <p role="alert" className="mt-4 rounded-lg border border-rose-700/20 bg-rose-100/60 px-3 py-2 text-base text-rose-900">
+                {submitError}
+              </p>
+            )}
+            {photoUrl && (
+              <p className="mt-3 text-sm text-slate-500">
+                The selected image is a local preview; this backend endpoint accepts a hosted photo URL.
+              </p>
+            )}
+            <label className="mt-4 block">
+              <span className="mb-1.5 block text-base font-semibold text-slate-300">
+                Hosted photo URL (optional)
+              </span>
+              <input
+                type="url"
+                value={hostedPhotoUrl}
+                onChange={(event) => {
+                  setHostedPhotoUrl(event.target.value);
+                  setSubmitted(false);
+                }}
+                placeholder="https://example.com/field-photo.jpg"
+                className="h-11 w-full rounded-lg border border-white/[0.1] bg-white/[0.025] px-3 text-base text-slate-200 outline-none transition placeholder:text-slate-500 focus:border-emerald-800/40"
+              />
+            </label>
             <button
               type="submit"
-              className="group mt-4 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-emerald-400 px-4 text-center text-base font-semibold text-[#07120f] shadow-md shadow-emerald-950/10 transition hover:bg-emerald-300"
+              disabled={isSubmitting || isLoadingHotspots || selectedHotspotId === ""}
+              className="group mt-4 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-emerald-400 px-4 text-center text-base font-semibold text-[#07120f] shadow-md shadow-emerald-950/10 transition hover:bg-emerald-300 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {submitted ? <Check size={15} /> : <ShieldCheck size={15} />}
-              {submitted
-                ? "Restriction submitted"
+            {submitted ? <Check size={15} /> : <ShieldCheck size={15} />}
+            {submitted
+              ? "Restriction submitted"
+              : isSubmitting
+                ? "Submitting report…"
                 : "Submit field restriction"}
               {!submitted && (
                 <ArrowRight
@@ -405,7 +514,7 @@ export default function Page3FieldRestrictionPortal() {
                       Constraint recorded
                     </p>
                     <p className="mt-1 text-base leading-relaxed text-[#718078]">
-                      {restrictionOutcomes[category]} at {hotspot.split(" - ")[0]}.
+                      {restrictionOutcomes[category]} at {selectedHotspot?.locationName}.
                     </p>
                   </div>
                 </div>
@@ -418,12 +527,12 @@ export default function Page3FieldRestrictionPortal() {
                       <Check size={11} />
                     </span>
                     <p className="text-base leading-relaxed text-[#48574c]">
-                      Feasible planting updated. ₹2.5L reallocated to Hotspot B cool roofs.
+                      Optimization recalculated. Allocated cost: ₹{submittedScenario?.totalAllocatedCost.toLocaleString("en-IN")}; predicted cooling: {submittedScenario?.predictedCoolingBenefit.toFixed(1)}°C; estimated CO₂ impact: {submittedScenario?.estimatedCo2Impact.toLocaleString("en-IN")}.
                     </p>
                   </div>
                 </div>
                 <a
-                  href={`/page4?fieldConstraints=1&hotspot=${encodeURIComponent(hotspot)}&category=${encodeURIComponent(category)}`}
+                  href={`/page4?fieldConstraints=1&hotspot=${encodeURIComponent(selectedHotspot?.locationName ?? "")}&category=${encodeURIComponent(category)}`}
                   className="group mt-4 flex min-h-11 items-center justify-between gap-2 rounded-lg bg-[#819572] px-3 text-base font-semibold text-white transition hover:bg-[#657b58]"
                 >
                   <span>View Plan Changes in Scenario Comparison</span>

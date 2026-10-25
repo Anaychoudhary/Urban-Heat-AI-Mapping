@@ -29,6 +29,7 @@ body,
 
 body {
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
 button,
@@ -244,4 +245,19 @@ select {
 
 .optimizer-slider:focus-visible::-moz-range-thumb {
   box-shadow: 0 0 0 4px rgba(129, 149, 114, 0.22);
+}
+
+@media (max-width: 640px) {
+  .map-panel {
+    min-height: 420px;
+  }
+
+  .map-panel .heat-risk-map {
+    min-height: 320px;
+  }
+
+  .map-panel .leaflet-control-attribution {
+    max-width: calc(100vw - 24px);
+    white-space: normal;
+  }
 }
