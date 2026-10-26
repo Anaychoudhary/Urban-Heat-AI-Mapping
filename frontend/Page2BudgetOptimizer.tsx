@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useMemo, useState } from "react";
 import type { CSSProperties, ReactNode } from "react";
 import {
@@ -13,8 +15,8 @@ import {
   ChevronDown,
   CloudSun,
   Flame,
+  LoaderCircle,
   MapPin,
-  RotateCcw,
   Save,
   Sparkles,
   Trees,
@@ -111,18 +113,6 @@ const INR = new Intl.NumberFormat("en-IN", {
 });
 
 const formatCurrency = (amount: number) => `₹${INR.format(amount)}`;
-
-function parseBudget(value: string, isLakhs: boolean) {
-  const amount = Number(value.replace(/[^\d.]/g, ""));
-  if (!Number.isFinite(amount)) return 0;
-  const multiplier = isLakhs ? 100000 : 1;
-  return Math.max(0, amount * multiplier);
-}
-
-function formatBudgetInput(amount: number, isLakhs: boolean) {
-  if (isLakhs) return (amount / 100000).toFixed(2);
-  return INR.format(amount);
-}
 
 function formatInterventionQuantity(
   icon: HotspotBudgetInput["icon"],
@@ -225,7 +215,7 @@ function StrategySlider({
           </label>
           <p className="mt-0.5 text-base text-slate-500">{description}</p>
         </div>
-        <span className="rounded-md border border-emerald-800/10 bg-emerald-900/[0.06] px-2 py-1 text-base font-semibold tabular-nums text-emerald-800">
+        <span className="rounded-md border border-emerald-400/20 bg-emerald-400/10 px-2 py-1 text-base font-semibold tabular-nums text-emerald-300">
           {value}%
         </span>
       </div>
@@ -248,10 +238,9 @@ function StrategySlider({
 }
 
 export default function Page2BudgetOptimizer() {
-  const wardId = 8;
+  const wardId = 1;
   const [budget, setBudget] = useState(2500000);
-  const [budgetInput, setBudgetInput] = useState("25,00,000");
-  const [isLakhs, setIsLakhs] = useState(false);
+  const [budgetInput, setBudgetInput] = useState(() => INR.format(2500000));
   const [vulnerabilityWeight, setVulnerabilityWeight] = useState(70);
   const [coolingPreference, setCoolingPreference] = useState(65);
   const [isOptimized, setIsOptimized] = useState(false);
@@ -316,14 +305,15 @@ export default function Page2BudgetOptimizer() {
 
   const changeBudget = (value: string) => {
     setBudgetInput(value);
-    setBudget(parseBudget(value, isLakhs));
+    const amount = Number(value.replace(/,/g, ""));
+    setBudget(Number.isFinite(amount) ? Math.max(0, amount) : 0);
     setSaved(false);
   };
 
-  const toggleFormat = () => {
-    const nextFormatIsLakhs = !isLakhs;
-    setIsLakhs(nextFormatIsLakhs);
-    setBudgetInput(formatBudgetInput(budget, nextFormatIsLakhs));
+  const formatBudgetInput = () => {
+    if (Number.isFinite(budget)) {
+      setBudgetInput(INR.format(budget));
+    }
   };
 
   const runOptimization = async () => {
@@ -335,7 +325,7 @@ export default function Page2BudgetOptimizer() {
       const scenario = await runBackendOptimization({
         wardId,
         budget,
-        scenarioName: "Aundh Ward Optimization",
+        scenarioName: "Ward 1 Budget Optimization",
       });
       setBackendScenario(scenario);
       setIsOptimized(true);
@@ -361,7 +351,7 @@ export default function Page2BudgetOptimizer() {
     window.localStorage.setItem(
       "pmc-ward-budget-baseline",
       JSON.stringify({
-        ward: "Aundh",
+        ward: "Ward 1",
         budget,
         vulnerabilityWeight,
         coolingPreference,
@@ -387,7 +377,7 @@ export default function Page2BudgetOptimizer() {
             >
               <ArrowLeft size={16} />
             </a>
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-emerald-900/10 bg-emerald-900/[0.06] text-emerald-800">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-emerald-400/20 bg-emerald-400/10 text-emerald-300">
               <Wallet size={18} />
             </span>
             <div className="min-w-0">
@@ -397,9 +387,9 @@ export default function Page2BudgetOptimizer() {
             </div>
           </div>
           <div className="flex items-center gap-2 rounded-lg border border-white/[0.07] bg-white/[0.025] px-3 py-2">
-            <MapPin size={13} className="text-emerald-800" />
+            <MapPin size={13} className="text-emerald-300" />
             <span className="text-sm font-medium text-slate-500">Active ward</span>
-            <span className="text-base font-semibold text-slate-200">Aundh</span>
+            <span className="text-base font-semibold text-slate-200">Ward 1</span>
             <ChevronDown size={13} className="text-slate-500" />
           </div>
         </div>
@@ -409,18 +399,18 @@ export default function Page2BudgetOptimizer() {
         <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
           <div>
             <h1 className="text-[24px] font-semibold tracking-tight text-white sm:text-[30px]">
-              <span>Municipal Budget Optimizer</span>
+              <span>Commissioner Budget Dashboard</span>
               <span className="mt-1 block text-[15px] font-medium tracking-normal text-slate-500 sm:mt-0 sm:ml-2 sm:inline">
-                Ward: Aundh
+                Ward: 1
               </span>
             </h1>
           </div>
         </div>
 
-        <section className="mb-5 rounded-2xl border border-white/[0.08] bg-[#0e161f] p-4 sm:p-5">
+        <section className="mb-5 rounded-2xl border border-white/[0.08] bg-[#0e161f] p-4 shadow-sm sm:p-5">
           <div className="mb-4 flex items-center justify-between gap-4">
             <div className="flex items-center gap-2.5">
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-900/[0.06] text-emerald-800">
+              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-400/10 text-emerald-300">
                 <Sparkles size={16} />
               </span>
               <div>
@@ -430,7 +420,7 @@ export default function Page2BudgetOptimizer() {
               </div>
             </div>
             {isOptimized && (
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-800/10 bg-emerald-900/[0.06] px-2.5 py-1 text-sm font-medium text-emerald-800">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-2.5 py-1 text-sm font-medium text-emerald-300">
                 <Check size={12} />
                 Plan optimized
               </span>
@@ -443,30 +433,21 @@ export default function Page2BudgetOptimizer() {
                 htmlFor="budget-input"
                 className="mb-2 block text-base font-semibold text-slate-300"
               >
-                Ward intervention budget
+                Ward Budget (₹)
               </label>
-              <div className="flex h-11 items-center rounded-lg border border-white/[0.1] bg-white/[0.025] px-3 focus-within:border-emerald-800/30">
-                <BadgeIndianRupee size={16} className="mr-2 shrink-0 text-emerald-800" />
+              <div className="flex h-11 items-center rounded-lg border border-slate-300 bg-slate-50 px-3 focus-within:border-emerald-700">
+                <BadgeIndianRupee size={16} className="mr-2 shrink-0 text-emerald-300" />
                 <input
                   id="budget-input"
+                  type="text"
                   inputMode="decimal"
-                  aria-label="Ward intervention budget"
+                  aria-label="Ward Budget in rupees"
                   value={budgetInput}
                   onChange={(event) => changeBudget(event.target.value)}
-                  className="min-w-0 flex-1 bg-transparent text-sm font-semibold tabular-nums text-slate-100 outline-none"
+                  onBlur={formatBudgetInput}
+                  className="min-w-0 flex-1 bg-transparent text-base font-semibold tabular-nums text-slate-900 outline-none"
                 />
-                <span className="ml-2 text-sm text-slate-500">
-                  {isLakhs ? "LAKHS" : "INR"}
-                </span>
               </div>
-              <button
-                type="button"
-                onClick={toggleFormat}
-                className="mt-1.5 flex items-center gap-1 text-sm font-medium text-emerald-800 transition hover:text-emerald-700"
-              >
-                <RotateCcw size={10} />
-                Show in ₹ {isLakhs ? "rupees" : "lakhs"}
-              </button>
             </div>
 
             <StrategySlider
@@ -503,50 +484,52 @@ export default function Page2BudgetOptimizer() {
               disabled={isRunning || budget <= 0}
               className="group flex h-11 items-center justify-center gap-2 whitespace-nowrap rounded-lg bg-emerald-400 px-4 text-base font-semibold text-[#07120f] shadow-md shadow-emerald-950/10 transition hover:bg-emerald-300 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              <span
-                className={`h-1.5 w-1.5 rounded-full bg-current ${
-                  isRunning ? "animate-ping" : "animate-pulse"
-                }`}
-              />
-              {isRunning ? "Optimizing..." : "Run Optimization Engine"}
+              {isRunning ? (
+                <LoaderCircle size={17} className="animate-spin" aria-hidden="true" />
+              ) : (
+                <Sparkles size={16} aria-hidden="true" />
+              )}
+              {isRunning ? "Optimizing..." : "Run AI Budget Optimizer"}
               <ArrowRight size={14} className="transition-transform group-hover:translate-x-0.5" />
             </button>
           </div>
         </section>
 
         {apiError && (
-          <p role="alert" className="mb-4 rounded-xl border border-rose-700/20 bg-rose-100/60 px-4 py-3 text-base text-rose-900">
+          <p role="alert" className="mb-4 rounded-xl border border-rose-400/20 bg-rose-400/10 px-4 py-3 text-base text-rose-200">
             {apiError}
           </p>
         )}
 
         {backendScenario && (
-          <section aria-live="polite" className="mb-4 rounded-xl border border-emerald-800/15 bg-emerald-900/[0.06] p-4">
-            <h2 className="text-base font-semibold text-slate-100">
-              Backend optimization result
+          <section aria-live="polite" className="mb-4 rounded-xl border border-white/[0.08] bg-[#0e161f] p-5 shadow-sm">
+            <h2 className="text-lg font-semibold text-slate-100">
+              Executive summary
             </h2>
-            <div className="mt-2 grid gap-2 text-base text-slate-300 sm:grid-cols-3">
-              <p>Allocated cost: {formatCurrency(backendScenario.totalAllocatedCost)}</p>
-              <p>Predicted cooling: {backendScenario.predictedCoolingBenefit.toFixed(1)}°C</p>
-              <p>Estimated CO₂ impact: {backendScenario.estimatedCo2Impact.toLocaleString("en-IN")}</p>
+            <div className="mt-4 grid gap-3 text-base text-slate-300 sm:grid-cols-3">
+              <SummaryResult
+                label="Total allocated cost"
+                value={formatCurrency(backendScenario.totalAllocatedCost)}
+              />
+              <SummaryResult
+                label="Predicted cooling benefit"
+                value={`${backendScenario.predictedCoolingBenefit.toFixed(1)}°C`}
+              />
+              <SummaryResult
+                label="Estimated CO₂ impact"
+                value={`${backendScenario.estimatedCo2Impact.toLocaleString("en-IN")} tons`}
+              />
             </div>
-            <details className="mt-3 text-base text-slate-300">
-              <summary className="cursor-pointer font-medium">View backend allocation data</summary>
-              <pre className="mt-2 max-h-64 overflow-auto rounded-lg bg-black/20 p-3 text-sm">
-                {typeof backendScenario.allocationsJson === "string"
-                  ? backendScenario.allocationsJson
-                  : JSON.stringify(backendScenario.allocationsJson, null, 2)}
-              </pre>
-            </details>
+            <AllocationResults data={backendScenario.allocationsJson} />
           </section>
         )}
 
-        <section aria-label="Scenario history" className="mb-4 rounded-xl border border-white/[0.08] bg-[#0e161f] p-4">
+        <section aria-label="Scenario history" className="mb-4 rounded-xl border border-white/[0.08] bg-[#0e161f] p-4 shadow-sm">
           <h2 className="text-base font-semibold text-slate-100">Saved scenario history</h2>
           {isLoadingHistory ? (
             <p className="mt-2 text-base text-slate-500">Loading saved scenarios…</p>
           ) : historyError ? (
-            <p role="alert" className="mt-2 text-base text-rose-800">{historyError}</p>
+            <p role="alert" className="mt-2 text-base text-rose-300">{historyError}</p>
           ) : scenarioHistory.length ? (
             <ul className="mt-2 space-y-1 text-base text-slate-300">
               {scenarioHistory.slice(0, 3).map((scenario, index) => (
@@ -563,7 +546,7 @@ export default function Page2BudgetOptimizer() {
         </section>
 
         {constraintsApplied && (
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-amber-700/10 bg-amber-100/40 px-4 py-3 text-base text-amber-900">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-amber-400/20 bg-amber-400/10 px-4 py-3 text-base text-amber-200">
             <span className="flex items-center gap-2">
               <Wind size={14} />
               {reportedHotspot && reportedCategory
@@ -601,7 +584,7 @@ export default function Page2BudgetOptimizer() {
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-center gap-2.5">
-                      <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-900/[0.06] text-emerald-800">
+                      <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-400/10 text-emerald-300">
                         <InterventionIcon type={hotspot.icon} />
                       </span>
                       <div>
@@ -616,8 +599,8 @@ export default function Page2BudgetOptimizer() {
                     <span
                       className={`rounded-md border px-1.5 py-1 text-sm font-semibold uppercase tracking-wide ${
                         hotspot.vulnerability >= 0.75
-                          ? "border-rose-700/10 bg-rose-100/60 text-rose-800"
-                          : "border-amber-700/10 bg-amber-100/60 text-amber-900"
+                          ? "border-rose-400/20 bg-rose-400/10 text-rose-300"
+                          : "border-amber-400/20 bg-amber-400/10 text-amber-200"
                       }`}
                     >
                       Vₕ {hotspot.vulnerability.toFixed(2)}
@@ -652,7 +635,7 @@ export default function Page2BudgetOptimizer() {
                           </p>
                         </div>
                       </div>
-                      <span className="shrink-0 whitespace-nowrap text-lg font-semibold text-emerald-800">
+                      <span className="shrink-0 whitespace-nowrap text-lg font-semibold text-emerald-300">
                         −{hotspot.projectedCooling.toFixed(1)}°C
                       </span>
                     </div>
@@ -670,7 +653,7 @@ export default function Page2BudgetOptimizer() {
                     Budget utilization
                   </h2>
                 </div>
-                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-100/60 text-amber-900">
+                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-400/10 text-amber-200">
                   <Wallet size={15} />
                 </span>
               </div>
@@ -746,9 +729,9 @@ export default function Page2BudgetOptimizer() {
                 </div>
               </div>
               <div className="mt-3 flex items-center gap-2 rounded-lg bg-emerald-900/[0.045] px-3 py-2">
-                <Flame size={13} className="text-rose-700" />
+                <Flame size={13} className="text-rose-300" />
                 <span className="text-base text-slate-500">Projected cumulative cooling</span>
-                <span className="ml-auto text-lg font-semibold text-emerald-800">
+                <span className="ml-auto text-lg font-semibold text-emerald-300">
                   −{totalCooling.toFixed(1)}°C
                 </span>
               </div>
@@ -756,7 +739,7 @@ export default function Page2BudgetOptimizer() {
 
             <section className="optimizer-explanation rounded-2xl border p-4 sm:p-5">
               <div className="flex items-start gap-2.5">
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-900/[0.08] text-emerald-800">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-400/10 text-emerald-300">
                   <Sparkles size={15} />
                 </span>
                 <div>
@@ -791,7 +774,7 @@ export default function Page2BudgetOptimizer() {
                 onClick={saveBaseline}
                 className={`flex min-h-10 items-center justify-center gap-2 rounded-lg border px-4 text-base font-semibold transition ${
                   saved
-                    ? "border-emerald-800/20 bg-emerald-900/[0.06] text-emerald-800"
+                    ? "border-emerald-400/20 bg-emerald-400/10 text-emerald-300"
                     : "border-white/[0.1] bg-transparent text-slate-300 hover:bg-white/[0.04]"
                 }`}
               >
@@ -809,12 +792,12 @@ export default function Page2BudgetOptimizer() {
             </div>
             <div className="flex flex-col items-stretch gap-2 rounded-xl border border-amber-800/10 bg-amber-900/[0.035] p-3 sm:basis-full sm:flex-row sm:items-center sm:justify-between sm:px-4">
               <span className="flex items-center gap-2 text-base text-slate-500">
-                <MapPin size={14} className="shrink-0 text-amber-800" />
+                <MapPin size={14} className="shrink-0 text-amber-300" />
                 <span className="font-semibold text-slate-200">Next: field verification</span>
               </span>
               <a
                 href={`/page3?budget=${encodeURIComponent(budget)}`}
-                className="group flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-lg border border-amber-800/15 bg-[#fbfaf6] px-3 text-base font-semibold text-amber-800 transition hover:bg-amber-900/[0.06] sm:px-4"
+                className="group flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-lg border border-amber-400/20 bg-amber-400/10 px-3 text-base font-semibold text-amber-200 transition hover:bg-amber-400/20 sm:px-4"
               >
                 Open field report
                 <ArrowRight size={13} className="transition-transform group-hover:translate-x-0.5" />
@@ -830,8 +813,77 @@ export default function Page2BudgetOptimizer() {
 
 function ExplanationItem({ children }: { children: ReactNode }) {
   return (
-    <li className="flex gap-2 text-base leading-relaxed text-[#29352f]">
+    <li className="flex gap-2 text-base leading-relaxed text-slate-300">
       <span className="min-w-0">{children}</span>
     </li>
+  );
+}
+
+function SummaryResult({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-xl border border-white/[0.08] bg-[#111a24] p-4 shadow-sm">
+      <p className="text-base text-slate-400">{label}</p>
+      <p className="mt-1 text-lg font-semibold tabular-nums text-slate-100">
+        {value}
+      </p>
+    </div>
+  );
+}
+
+function AllocationResults({ data }: { data: unknown }) {
+  let allocations = data;
+  if (typeof data === "string") {
+    try {
+      allocations = JSON.parse(data) as unknown;
+    } catch {
+      return (
+        <p role="alert" className="mt-4 text-base text-rose-300">
+          Allocation details are not valid JSON.
+        </p>
+      );
+    }
+  }
+
+  if (allocations === null || allocations === undefined) {
+    return (
+      <p className="mt-4 text-base text-slate-400">
+        No allocation details were returned.
+      </p>
+    );
+  }
+
+  const entries: [string, unknown][] = Array.isArray(allocations)
+    ? allocations.map((allocation, index) => [`Allocation ${index + 1}`, allocation])
+    : typeof allocations === "object"
+      ? Object.entries(allocations)
+      : [["Allocation", allocations]];
+
+  return (
+    <section className="mt-5">
+      <h3 className="mb-3 text-lg font-semibold text-slate-100">
+        Allocation plan
+      </h3>
+      {entries.length ? (
+        <ul className="grid gap-3 sm:grid-cols-2">
+          {entries.map(([label, value]) => (
+            <li
+              key={label}
+              className="rounded-xl border border-white/[0.08] bg-[#111a24] p-4 shadow-sm"
+            >
+              <p className="mb-2 text-base font-semibold text-slate-200">
+                {label}
+              </p>
+              <pre className="overflow-x-auto whitespace-pre-wrap break-words text-sm leading-relaxed text-slate-300">
+                {typeof value === "string"
+                  ? value
+                  : JSON.stringify(value, null, 2)}
+              </pre>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="text-base text-slate-400">No allocation entries returned.</p>
+      )}
+    </section>
   );
 }
