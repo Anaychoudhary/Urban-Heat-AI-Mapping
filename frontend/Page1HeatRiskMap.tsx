@@ -51,7 +51,7 @@ export interface Hotspot {
   vulnerabilityScore: number;
   vulnerablePopulation?: string;
   area?: string;
-  risk: "Critical" | "Moderate";
+  risk: "Critical" | "Moderate" | "Low";
   interventions?: Intervention[];
 }
 
@@ -196,8 +196,17 @@ const cities: City[] = [
 
 type MapLayer = "all" | "risk-zones" | "hotspots" | "base-map";
 
-const getRiskColor = (risk: Hotspot["risk"]) =>
-  risk === "Critical" ? "#fb6470" : "#f4ad54";
+const getRiskColor = (risk: Hotspot["risk"]) => {
+  if (risk === "Critical") return "#fb6470";
+  if (risk === "Moderate") return "#f4ad54";
+  return "#34d399";
+};
+
+const getTemperatureRisk = (temperature: number): Hotspot["risk"] => {
+  if (temperature > 42) return "Critical";
+  if (temperature >= 38) return "Moderate";
+  return "Low";
+};
 
 const createHotspotIcon = (hotspot: Hotspot, selected: boolean) =>
   L.divIcon({
@@ -237,8 +246,8 @@ function MapSizeHandler({ resizeKey }: { resizeKey: boolean }) {
 
 export default function Page1HeatRiskMap() {
   const [selectedCityId, setSelectedCityId] = useState("pune");
-  const [selectedWardId, setSelectedWardId] = useState(ALL_WARDS);
-  const [selectedHotspotId, setSelectedHotspotId] = useState("A");
+  const [selectedWardId, setSelectedWardId] = useState("01");
+  const [selectedHotspotId, setSelectedHotspotId] = useState("");
   const [mapLayer, setMapLayer] = useState<MapLayer>("all");
   const [isMapFullscreen, setIsMapFullscreen] = useState(false);
   const [mapTarget, setMapTarget] = useState<[number, number]>(puneCenter);
@@ -267,7 +276,7 @@ export default function Page1HeatRiskMap() {
           coordinates: [hotspot.latitude, hotspot.longitude],
           surfaceTemp: hotspot.landSurfaceTemp,
           vulnerabilityScore: vulnerability,
-          risk: vulnerability >= 0.75 ? "Critical" : "Moderate",
+          risk: getTemperatureRisk(hotspot.landSurfaceTemp),
         };
       }),
     [wardHotspots],
@@ -278,6 +287,9 @@ export default function Page1HeatRiskMap() {
       : selectedCityId === "pune" && selectedWardId === ALL_WARDS
         ? hotspots
         : [];
+  const selectedHotspot = visibleHotspots.find(
+    (hotspot) => hotspot.id === selectedHotspotId,
+  );
   const showRiskZones = mapLayer === "all" || mapLayer === "risk-zones";
   const showHotspotMarkers = mapLayer === "all" || mapLayer === "hotspots";
 
@@ -327,14 +339,14 @@ export default function Page1HeatRiskMap() {
     const city = cities.find((item) => item.id === cityId);
     setSelectedCityId(cityId);
     setSelectedWardId(ALL_WARDS);
-    setSelectedHotspotId(cityId === "pune" ? "A" : "");
+    setSelectedHotspotId("");
     setMapTarget(city?.center ?? puneCenter);
   };
 
   const handleWardChange = (wardId: string) => {
     setSelectedWardId(wardId);
     if (wardId === ALL_WARDS) {
-      setSelectedHotspotId("A");
+      setSelectedHotspotId("");
       setMapTarget(selectedCity?.center ?? puneCenter);
       return;
     }
@@ -453,10 +465,10 @@ export default function Page1HeatRiskMap() {
           </div>
         </section>
 
-        <section className="flex flex-col gap-4">
+        <section className="grid grid-cols-1 gap-4 lg:grid-cols-3">
           <div
             ref={mapPanelRef}
-            className="map-panel flex min-h-[420px] w-full flex-col overflow-hidden rounded-2xl border border-white/[0.08] bg-[#0e161f] sm:min-h-[560px]"
+            className="map-panel flex min-h-[420px] w-full flex-col overflow-hidden rounded-2xl border border-white/[0.08] bg-[#0e161f] shadow-sm sm:min-h-[560px] lg:col-span-2"
           >
             <div className="flex flex-col gap-3 border-b border-white/[0.07] px-4 py-3 sm:px-5 xl:flex-row xl:items-center xl:justify-between">
               <div className="flex items-center">
@@ -641,7 +653,78 @@ export default function Page1HeatRiskMap() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <aside
+            aria-live="polite"
+            className="flex min-h-[420px] flex-col rounded-2xl border border-white/[0.08] bg-[#0e161f] p-5 sm:min-h-[560px]"
+          >
+            <div className="mb-5 flex items-start justify-between gap-3">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+                  Hotspot details
+                </p>
+                <h2 className="mt-2 text-xl font-semibold text-slate-100">
+                  {selectedHotspot?.name ?? "Select a map marker"}
+                </h2>
+              </div>
+              {selectedHotspot && (
+                <span
+                  className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
+                    selectedHotspot.risk === "Critical"
+                      ? "bg-rose-400/10 text-rose-300"
+                      : selectedHotspot.risk === "Moderate"
+                        ? "bg-amber-400/10 text-amber-300"
+                        : "bg-emerald-400/10 text-emerald-300"
+                  }`}
+                >
+                  {selectedHotspot.risk}
+                </span>
+              )}
+            </div>
+
+            {selectedHotspot ? (
+              <div className="space-y-3">
+                <DetailValue
+                  label="Location"
+                  value={selectedHotspot.locality}
+                />
+                <DetailValue
+                  label="Land surface temperature"
+                  value={`${selectedHotspot.surfaceTemp.toFixed(1)}°C`}
+                />
+                <DetailValue
+                  label="Vulnerability score"
+                  value={`${(selectedHotspot.vulnerabilityScore * 100).toFixed(0)}%`}
+                />
+                <DetailValue
+                  label="Coordinates"
+                  value={`${selectedHotspot.coordinates[0].toFixed(4)}, ${selectedHotspot.coordinates[1].toFixed(4)}`}
+                />
+              </div>
+            ) : (
+              <p className="rounded-xl border border-white/[0.07] bg-white/[0.025] p-4 text-sm leading-relaxed text-slate-400">
+                {isLoadingWardHotspots
+                  ? `Loading hotspot data for Ward ${selectedWardData?.id ?? "—"}…`
+                  : wardHotspotsError
+                    ? wardHotspotsError
+                    : selectedWardData
+                      ? `No hotspot data is available for Ward ${selectedWardData.id}.`
+                      : "Choose a ward or select a marker to inspect its heat and vulnerability data."}
+              </p>
+            )}
+
+            <div className="mt-auto border-t border-white/[0.07] pt-5">
+              <p className="mb-3 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+                Temperature risk
+              </p>
+              <div className="space-y-2">
+                <MapLegend color="#fb6470" label="Critical · above 42°C" />
+                <MapLegend color="#f4ad54" label="Moderate · 38–42°C" />
+                <MapLegend color="#34d399" label="Lower · below 38°C" />
+              </div>
+            </div>
+          </aside>
+
+          <div className="grid grid-cols-1 gap-3 lg:col-span-3 sm:grid-cols-3">
             <SummaryMetric
               label="Ward average"
               value="—"
@@ -727,30 +810,30 @@ export default function Page1HeatRiskMap() {
           background: var(--warm-panel);
         }
         .heat-risk-map .leaflet-control-attribution {
-          background: rgba(10, 16, 23, 0.72);
-          color: #64748b;
+          background: rgba(251, 250, 246, 0.92);
+          color: #48574c;
           font-size: 11px;
         }
         .heat-risk-map .leaflet-tile-pane {
-          filter: invert(1) hue-rotate(180deg) brightness(0.78) saturate(0.72);
+          filter: none;
         }
         .heat-risk-map .leaflet-control-attribution a {
-          color: #94a3b8;
+          color: #657b58;
         }
         .heat-risk-map .leaflet-bar {
           overflow: hidden;
-          border: 1px solid rgba(255, 255, 255, 0.12);
+          border: 1px solid #deded3;
           border-radius: 9px;
           box-shadow: none;
         }
         .heat-risk-map .leaflet-bar a {
-          border-bottom-color: rgba(255, 255, 255, 0.08);
-          background: rgba(12, 19, 27, 0.92);
-          color: #cbd5e1;
+          border-bottom-color: #deded3;
+          background: #fbfaf6;
+          color: #29352f;
         }
         .heat-risk-map .leaflet-bar a:hover {
-          background: #17232a;
-          color: #fff;
+          background: #eeece3;
+          color: #657b58;
         }
         .hotspot-marker {
           position: relative;
@@ -769,6 +852,9 @@ export default function Page1HeatRiskMap() {
         }
         .hotspot-marker--moderate {
           background: rgba(244, 173, 84, 0.94);
+        }
+        .hotspot-marker--low {
+          background: rgba(52, 211, 153, 0.92);
         }
         .hotspot-marker--selected {
           transform: scale(1.15);
@@ -794,11 +880,11 @@ export default function Page1HeatRiskMap() {
           display: flex;
           align-items: center;
           gap: 5px;
-          color: rgba(226, 232, 240, 0.75);
+          color: rgba(41, 53, 47, 0.82);
           font: 700 9px/1 ui-sans-serif, system-ui, sans-serif;
           letter-spacing: 0.18em;
           pointer-events: none;
-          text-shadow: 0 1px 4px #071018;
+          text-shadow: 0 1px 4px rgba(251, 250, 246, 0.9);
         }
         .map-center-label__dot {
           width: 5px;
@@ -809,8 +895,8 @@ export default function Page1HeatRiskMap() {
         }
         .heat-risk-map .leaflet-popup-content-wrapper,
         .heat-risk-map .leaflet-popup-tip {
-          background: #111a24;
-          color: #e2e8f0;
+          background: #fbfaf6;
+          color: #29352f;
         }
         .heat-risk-map .leaflet-popup-content {
           margin: 10px 13px;
@@ -818,7 +904,7 @@ export default function Page1HeatRiskMap() {
           line-height: 1.6;
         }
         .heat-risk-map .leaflet-popup-close-button {
-          color: #94a3b8 !important;
+          color: #718078 !important;
         }
       `}</style>
     </main>
@@ -882,5 +968,18 @@ function MapLegend({ color, label }: { color: string; label: string }) {
       />
       {label}
     </span>
+  );
+}
+
+function DetailValue({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-xl border border-white/[0.07] bg-white/[0.025] px-4 py-3">
+      <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+        {label}
+      </p>
+      <p className="mt-1.5 break-words text-sm font-semibold text-slate-200">
+        {value}
+      </p>
+    </div>
   );
 }
