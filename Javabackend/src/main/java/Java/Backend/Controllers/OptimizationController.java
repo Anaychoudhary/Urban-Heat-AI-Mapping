@@ -1,23 +1,23 @@
 package Java.Backend.Controllers;
 
+import Java.Backend.DTO.OptimizationRequest;
 import Java.Backend.DTO.ScenarioResponse;
 import Java.Backend.Entities.Scenario;
 import Java.Backend.Repositories.ScenarioRepository;
 import Java.Backend.Services.OptimizationService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Positive;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/optimization")
 @CrossOrigin(origins = "*")
+@Validated
 public class OptimizationController {
 
     private final OptimizationService optimizationService;
@@ -32,11 +32,23 @@ public class OptimizationController {
 
     @PostMapping("/run")
     public ResponseEntity<ScenarioResponse> runOptimization(
-            @RequestParam Long wardId,
-            @RequestParam Double budget,
-            @RequestParam(required = false, defaultValue = "Baseline AI Plan") String scenarioName) {
-        Scenario scenario = optimizationService.runBudgetOptimizer(wardId, budget, scenarioName);
-        return ResponseEntity.ok(ScenarioResponse.from(scenario));
+            @Positive @RequestParam Long wardId,
+            @DecimalMin("100000.00") @RequestParam Double budget,
+            @RequestParam(defaultValue = "Baseline AI Plan") String scenarioName) {
+
+        Scenario result = optimizationService.runBudgetOptimizer(wardId, budget, scenarioName);
+        return ResponseEntity.ok(ScenarioResponse.from(result));
+    }
+
+    // Endpoint supporting JSON Body with @Valid annotation
+    @PostMapping("/run-json")
+    public ResponseEntity<ScenarioResponse> runOptimizationJson(@Valid @RequestBody OptimizationRequest request) {
+        Scenario result = optimizationService.runBudgetOptimizer(
+                request.getWardId(),
+                request.getBudget(),
+                request.getScenarioName()
+        );
+        return ResponseEntity.ok(ScenarioResponse.from(result));
     }
 
     @GetMapping("/scenarios/{wardId}")
